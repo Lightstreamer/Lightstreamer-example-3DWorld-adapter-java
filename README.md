@@ -64,11 +64,11 @@ Prepare Lightstreamer
 
 1.    Download and install Lightstreamer
 2.    Go to the "adapters" folder of your Lightstreamer Server installation. Create a new folder and call it "3DWorldDemo". Create a "lib" folder inside it.
-3.1.  Copy the "ls-adapter-interface.jar" file from "Lightstreamer/lib" in the newly created "lib" folder.
-3.2.  Copy the "croftsoft-math.jar" file from "Lightstreamer/lib" in the newly created "lib" folder.
-3.3.  Copy the jar of the adapter compiled in the previous section in the newly created "lib" folder.
-4.    Copy the "adapters.xml" and "adapters_log_conf.xml" files from the Deployment_LS folder of this project inside the "3DWorldDemo" folder.
-5.    Launch Lightstreamer.
+3.    Copy the "ls-adapter-interface.jar" file from "Lightstreamer/lib" in the newly created "lib" folder.
+4.    Copy the "croftsoft-math.jar" file from "Lightstreamer/lib" in the newly created "lib" folder.
+5.    Copy the jar of the adapter compiled in the previous section in the newly created "lib" folder.
+6.    Copy the "adapters.xml" and "adapters_log_conf.xml" files from the Deployment_LS folder of this project inside the "3DWorldDemo" folder.
+7.    Launch Lightstreamer.
 
 
 Lightstreamer Compatibility Notes
