@@ -35,12 +35,17 @@ public class TheWorld extends Thread {
     
     private String name = "Default";
     
+    private static final int BASE_RATE = 10;
+    
     private int frameRate = 10;
+    
+    private double factorWorld = 1;
     
     private boolean started = false;
     
     public void setFrameRate(int frameRate) {
         this.frameRate = frameRate;
+        this.factorWorld = (double)(this.frameRate / BASE_RATE);
     }
     
     public TheWorld() {
@@ -50,6 +55,8 @@ public class TheWorld extends Thread {
     public TheWorld(String name) {
         super();
         this.name = name;
+        
+        this.factorWorld = (double)(this.frameRate / BASE_RATE);
         
         Move3dAdapter.logger.debug("World " + name + " created.");
     }
@@ -146,7 +153,11 @@ public class TheWorld extends Thread {
     public void changeNickName(String user, String nick) {
         BaseModelBody boxN = playersBody.get(user);
         if ( boxN != null ) {
-            boxN.setNickName(nick);
+            if ( nick.length() > 25 ) {
+                boxN.setNickName(nick.substring(0,25));
+            } else {
+                boxN.setNickName(nick);
+            }
         } else {
             Move3dAdapter.logger.warn(user + " not found!");
         }
@@ -156,6 +167,8 @@ public class TheWorld extends Thread {
     
     @Override
     public void run () {
+        int ticksCount = 0;
+        
         this.started = true;
         while (true) {
             synchronized (listMutex) {
@@ -166,10 +179,19 @@ public class TheWorld extends Thread {
                 while(users.hasMoreElements()) {
                     boxN = users.nextElement();
                     
-                    boxN.translate();
-                    boxN.rotate();
+                    boxN.translate(this.factorWorld);
+                    boxN.rotate(this.factorWorld);
                     
                     this.listener.sendUpdates(boxN.getOrigName(), boxN);                    
+                }
+                
+                try {
+                    if ( ticksCount++ > (10000/this.frameRate) ) {
+                        this.listener.postOverallBandwidth();
+                        ticksCount = 0;
+                    }
+                } catch (Exception e) {
+                    Move3dAdapter.logger.warn("Unexpected error in send overall Bandwidth information.", e);
                 }
             }
         
