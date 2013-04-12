@@ -82,9 +82,13 @@ public interface  IBody {
     
     void  rotate();
     
+    void  rotate(double factor);
+    
     void  translate (Axis axis, double  distance);
     
     void  translate (Translation  translation, double distance);
     
     void translate();
+    
+    void translate(double factor);
 }

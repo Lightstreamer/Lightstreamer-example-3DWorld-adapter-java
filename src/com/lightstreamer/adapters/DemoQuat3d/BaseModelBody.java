@@ -186,6 +186,13 @@ public class BaseModelBody implements IBody {
     }
     
     @Override
+    public void rotate(double factor) {
+        rotate ( new AxisAngleImp ( this.deltaRotX * factor, 1, 0, 0 ) );
+        rotate ( new AxisAngleImp ( this.deltaRotY * factor, 0, 1, 0 ) );
+        rotate ( new AxisAngleImp ( this.deltaRotZ * factor, 0, 0, 1 ) );
+    }
+    
+    @Override
     public void translate(Axis axis, double distance) {
         switch ( axis )
         {
@@ -214,6 +221,19 @@ public class BaseModelBody implements IBody {
         this.x += (double)(this.vX * TRANSLATE_DELTA);
         this.y += (double)(this.vY * TRANSLATE_DELTA);
         this.z += (double)(this.vZ * TRANSLATE_DELTA);
+                
+        this.x = MathLib.wrap(this.x, (-0.5 * WORLD_SIZE_X), WORLD_SIZE_X);
+        this.y = MathLib.wrap(this.y, (-0.5 * WORLD_SIZE_Y), WORLD_SIZE_Y);
+        this.z = MathLib.wrap(this.z, (-0.5 * WORLD_SIZE_Z), WORLD_SIZE_Z);
+        
+        this.lifeSpan += 1;
+    }
+    
+    @Override
+    public void translate(double factor) {
+        this.x += (double)(this.vX * TRANSLATE_DELTA * factor);
+        this.y += (double)(this.vY * TRANSLATE_DELTA * factor);
+        this.z += (double)(this.vZ * TRANSLATE_DELTA * factor);
                 
         this.x = MathLib.wrap(this.x, (-0.5 * WORLD_SIZE_X), WORLD_SIZE_X);
         this.y = MathLib.wrap(this.y, (-0.5 * WORLD_SIZE_Y), WORLD_SIZE_Y);

@@ -73,8 +73,6 @@ public class PollsBandwidth extends Thread {
            
             sessionMBeanName = new ObjectName("com.lightstreamer", props);  
             
-            
-            
             this.user = user;
         } catch (Exception e) {
             // Skip. Eventually log here ...
@@ -92,6 +90,15 @@ public class PollsBandwidth extends Thread {
             // it is still possible that the session has just ended  
             return;  
         } 
+    }
+    
+    public double getBandwidth() {
+        try {
+            Double d = (Double)server.getAttribute(sessionMBeanName, "CurrentBandwidthKbps");
+            return d;
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
         
     @Override

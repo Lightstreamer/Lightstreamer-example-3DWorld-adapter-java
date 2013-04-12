@@ -19,6 +19,7 @@
 package com.lightstreamer.adapters.DemoQuat3d;
 
 import java.io.File;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -85,26 +86,17 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
         }
     }
     
-    /*
-    @Override
-    public String[] getItems(String user, String sessionID, String group) throws ItemsException {
-        if ( group.startsWith(LOGON_CUSTOM_PREFIX) ) {
-            if  ( Move3dAdapter.worldOvercrwoded(group) ) {
-                throw new ItemsException("This world is overcrowded, please migrate elsewhere.");
-            }
+    public static double getTotalBandwidthOut() {
+        double sum = 0.0;
+        Enumeration<PollsBandwidth> e = checkBandWidths.elements();
+        PollsBandwidth p;
+        while ( e.hasMoreElements() ) {
+            p = e.nextElement();
+            sum += p.getBandwidth();
         }
         
-        return group.split(" ");
-    }*/
- 
-
-    /*
-    @Override
-    public void notifyNewSession(java.lang.String user, java.lang.String sessionID, java.util.Map clientContext)
-              throws CreditsException {
-        throw new CreditsException(-3, "This world is overcrowded, please migrate elsewhere.");      
+        return sum;
     }
-     */
     
     @Override
     public void notifyTablesClose(java.lang.String sessionID, TableInfo[] tables) {
@@ -126,7 +118,7 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
             }
             
             if  ( Move3dAdapter.worldOvercrwoded(tables[0].getId()) ) {
-                throw new CreditsException(-3, "This world is overcrowded, please migrate elsewhere.");
+                throw new CreditsException(-3, "This world is full and you are a watcher. Teleport yourself to another world to become an active player");
             }
             
             if (pieces.length > 1) {
@@ -142,6 +134,7 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
                 curSrvSideUsers++;
                 logger.debug("Current Server side players: " + curSrvSideUsers);
             } else {
+                logger.warn("Too many server side players, upgrade rejected.");
                 throw new CreditsException(-3, "Too many server side players!");
             }
         }
@@ -173,13 +166,20 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
                 logger.warn("Message not well formatted, skipped.", e);
             }
         } else if ( message.startsWith("m|") ) {
-            // Set new NickName for the players. 
+            // Set new NickName for the players.
+            String newMsg = "";
             try {
-                String newMsg = message.split("\\|")[1];
-                Move3dAdapter.myWorld.updateMyMsg(players.get(sessionID), newMsg);
-            } catch (Exception e) {
+                newMsg = message.split("\\|")[1];
+                
+            } catch (ArrayIndexOutOfBoundsException aiobe) {
                 // Skip, message not well formatted
-                logger.warn("Message not well formatted, skipped.", e);
+                logger.warn("Message not well formatted, skipped.", aiobe);
+            }
+            try {
+                Move3dAdapter.myWorld.updateMyMsg(players.get(sessionID), newMsg);
+            }  catch (Exception e) {
+                // Skip, message not well formatted
+                logger.warn("Unexpected error handling new message from user.", e);
             }
         } else {
             Move3dAdapter.myWorld.dispatchMsgs(players.get(sessionID) + "|" + message);

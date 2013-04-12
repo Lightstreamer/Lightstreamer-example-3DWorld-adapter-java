@@ -5,13 +5,13 @@
 
 A demo showing the potentials of the integration of Lightstreamer in any multiplayer 3D world simulation. 
 This project include the full Adapter Set for Lightstreamer written in Java. Particular attention is paid to aspects of real-time communication and opportunities to minimize the network bandwidth utilization. Consider that the Demo allows two modality:
-- the physics calculations are performed both client side and server side, the rendering is based on client side physics calculations and resynchs with information arriving from server every n seconds. Instead panel "Matrix" data are those that come from the server.
-- the physics engine run completely on the server side and the positional and rotational data for all the players in the game are transmitted to all the clients with a frequency of up to 100Hz.
+- the physics calculations are performed both client side and server side, the rendering is based on client side physics calculations that is resync-ed with the server every N seconds. On the other hand the Matrix panel is only fed with server-side data.
+- the physics engine runs completely on the server side and the positional and rotational data for all the players in the game are transmitted to all the clients with a frequency of up to 100Hz.
 
 Java Data Adapter and MetaData Adapter
 --------------------------------------
 
-A Java Adapter implementing both SmartDataProvider interface and MetadataProviderAdapter interface to inject data to lightstreamer server with real time information about move of every players in the world.
+A Java Adapter implementing both SmartDataProvider interface and MetadataProviderAdapter interface to inject data to lightstreamer server with real time information about the movement of every player in the world.
 Both traslations and rotations in 3d space are calculated by the adapter and reatrasmitted to the clients in a 7-values array: Position for axis X, Position for axis Y, Position for axis Z, and a Quaternion object for rotation information <x, y, z, Quat(X, Y, Z, W)>.
 Precision and format of data in output are configurable by each player among the choice: 
 - binary base 64 encoded float numbers single precision;

@@ -50,10 +50,14 @@ public class Move3dAdapter implements SmartDataProvider {
     private static String BAND_PREFIX = "My_Band_";
     private static String LOGON_CUSTOM_PREFIX = "c_logon_";
     private static String DEFAULT_WORLD = "Default";
+    private static String STATISTICS = "Statistics";
+    
     private static int MAX_INACTIVITY = 30000;
     private static int MAX_PLAYERS = 20;
     private static int TOTAL_MAX_PLAYERS = 50; 
     private static int GHOST_PLAYERS = 0;
+    
+    private boolean goStats = false;
     
     public static Logger logger;
     
@@ -231,10 +235,48 @@ public class Move3dAdapter implements SmartDataProvider {
         }
         
         if ( sum > TOTAL_MAX_PLAYERS ) {
+            logger.warn("Total players exceed TOTAL MAX PLAYERS limit (" + sum + ").");
             return true;
         }
         
         return false;
+    }
+    
+    public void sumTotalPlayer() {
+        ArrayList<String> playersList = null;
+        int sum = 0;
+        
+        synchronized(myWorld) {
+            Enumeration<ArrayList<String>> es = customWorlds.elements();
+            while ( es.hasMoreElements()) {
+                playersList = es.nextElement();
+                sum = sum + playersList.size();
+            }
+        }
+        
+        logger.info("STATISTICS - Total players in the demo: " + sum + ".");
+        if ( listener != null && goStats) {
+            HashMap<String, String> update = new HashMap<String, String>();
+            
+            update.put("total_players", sum+"");
+            listener.update(STATISTICS, update, false);
+        }
+        
+        return ;
+    }
+
+    public void postOverallBandwidth() {
+        double totBandwidth = Move3dMetaAdapter.getTotalBandwidthOut();
+        
+        logger.info("STATISTICS - Total bandwidth for the demo: " + totBandwidth + ".");
+        if ( listener != null && goStats) {
+            HashMap<String, String> update = new HashMap<String, String>();
+            
+            update.put("total_bandwidth", totBandwidth+"");
+            listener.update(STATISTICS, update, false);
+        }
+        
+        return ;
     }
     
     public static void postBandwith(String itemName, Double d) {
@@ -667,6 +709,8 @@ public class Move3dAdapter implements SmartDataProvider {
                     }
                     userWorldMap.remove(pieces[1]);
                 }
+                
+                sumTotalPlayer();
             }
         } else if (itemName.startsWith(CUSTOM_WORLD)) {
             synchronized (myWorld) {
@@ -692,6 +736,8 @@ public class Move3dAdapter implements SmartDataProvider {
             }
         } else if (itemName.startsWith(BAND_PREFIX)) {
             Move3dMetaAdapter.killBandChecker(itemName);
+        } else if (itemName.startsWith(STATISTICS)) {
+            goStats = false;
         } else {
             subscribed.remove(itemName);
             logger.info(itemName + " unsubscribed!");
@@ -747,8 +793,7 @@ public class Move3dAdapter implements SmartDataProvider {
                         ArrayList<String> aW = worldsPrecisions.get(pieces[1]);
                         aW.add("_"+pieces[2]);
                         logger.debug("worldPrecisions contains. Add " + pieces[2]);
-                    }
-                        
+                    }                     
                 } else {
                     throw new SubscriptionException(CUSTOM_WORLD + " malformed.");
                 }
@@ -786,9 +831,13 @@ public class Move3dAdapter implements SmartDataProvider {
                     
                     updateList("ADD", pieces[1], pieces[0], CUSTOM_WORLD);
                 }
+                
+                sumTotalPlayer();
             }
         } else if (itemName.startsWith(BAND_PREFIX)) {
             // Nothing to do.
+        } else if (itemName.startsWith(STATISTICS)) {
+            goStats = true;
         } else {
             subscribed.add(itemName);
             logger.info(itemName + " subscribed!");
