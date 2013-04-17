@@ -47,9 +47,6 @@ Build the java source files (in the src folder) into a LS_DemoQuat3d_Adapters.ja
         <fileset dir="${compile_libs}/ls-generic-adapters">
           <include name="ls-generic-adapters.jar"/>
         </fileset>
-        <fileset dir="${compile_libs}">
-          <include name="log4j-1.2.15.jar"/>
-        </fileset>
       </classpath>
     </javac>
   </target>
@@ -67,8 +64,9 @@ Prepare Lightstreamer
 3.    Copy the "ls-adapter-interface.jar" file from "Lightstreamer/lib" in the newly created "lib" folder.
 4.    Copy the "croftsoft-math.jar" file from "Lightstreamer/lib" in the newly created "lib" folder.
 5.    Copy the jar of the adapter compiled in the previous section in the newly created "lib" folder.
-6.    Copy the "adapters.xml" and "adapters_log_conf.xml" files from the Deployment_LS folder of this project inside the "3DWorldDemo" folder.
-7.    Launch Lightstreamer.
+6.    Copy the "adapters.xml" file from the Deployment_LS folder of this project inside the "3DWorldDemo" folder.
+7.    [Optional] Supply a specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" category in logback configuration <"Lightstreamer/conf/lightstreamer_log_conf.xml>.
+8.    Launch Lightstreamer.
 
 
 Lightstreamer Compatibility Notes
