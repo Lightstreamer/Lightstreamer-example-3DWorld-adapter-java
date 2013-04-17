@@ -24,19 +24,28 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 
 import com.lightstreamer.adapters.metadata.LiteralBasedProvider;
 import com.lightstreamer.interfaces.metadata.CreditsException;
+import com.lightstreamer.interfaces.metadata.NotificationException;
 import com.lightstreamer.interfaces.metadata.TableInfo;
 
 public class Move3dMetaAdapter extends LiteralBasedProvider {
 
-    /**
-     * Private logger; a specific "LS_Move3dDemo_Logger" category
-     * should be supplied by log4j configuration.
-     */
     private static Logger logger;
+    
+    /**
+     * Private logger; a specific "LS_3DWorldDemo_Logger" category
+     * should be supplied by logback configuration.
+     */
+    public static Logger tracer = null;
+    
+    /**
+     * Keeps the client context informations supplied by Lightstreamer on the
+     * new session notifications.
+     * Session information is needed to pass the IP to logging purpose.
+     */
+    private ConcurrentHashMap<String,Map<String,String>> sessions = new ConcurrentHashMap<String,Map<String,String>>();
     
     private final ConcurrentHashMap<String, String> players = new ConcurrentHashMap<String, String>();
     private final static ConcurrentHashMap<String, PollsBandwidth> checkBandWidths = new ConcurrentHashMap<String, PollsBandwidth>();
@@ -50,17 +59,14 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     
     @Override
     public void init(Map params, File configDir) {
-        String logConfig = (String) params.get("log_config");
-        if (logConfig != null) {
-            File logConfigFile = new File(configDir, logConfig);
-            String logRefresh = (String) params.get("log_config_refresh_seconds");
-            if (logRefresh != null) {
-                DOMConfigurator.configureAndWatch(logConfigFile.getAbsolutePath(), Integer.parseInt(logRefresh) * 1000);
-            } else {
-                DOMConfigurator.configure(logConfigFile.getAbsolutePath());
-            }
-        }
+        
         logger = Logger.getLogger("LS_demos_Logger.Move3dDemo");
+        
+        try{
+            tracer = Logger.getLogger("LS_3DWorldDemo_Logger.tracer");
+        } catch (Exception e) {
+            logger.warn("Error on tracer initialization.",  e);            
+        }
         
         if (params.containsKey("jmxPort")) {
             this.jmxPort = new Integer((String)params.get("jmxPort")).intValue();
@@ -96,6 +102,18 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
         }
         
         return sum;
+    }
+    
+    @Override
+    public void notifySessionClose(String session) throws NotificationException {
+        //we have to remove session informations from the session HashMap
+        sessions.remove(session);
+    }
+    
+    @Override
+    public void notifyNewSession(String user, String session, Map sessionInfo) throws CreditsException, NotificationException {
+        // Register the session details on the sessions HashMap.
+        sessions.put(session, sessionInfo);
     }
     
     @Override
@@ -160,6 +178,19 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
             // Set new NickName for the players. 
             try {
                 String newNick = message.split("\\|")[1];
+                String ip = "";
+                String player = players.get(sessionID);
+                Map<String,String> sessionInfo = sessions.get(sessionID);
+                
+                if (sessionInfo == null) {
+                     logger.warn("New nick received from non-existent session: " + message);
+                } else {
+                    //  read from info the IP of the user
+                    ip =  sessionInfo.get("REMOTE_IP");
+                }
+                
+                tracer.info("New nickname: " + newNick + " from " + player + " (" + ip + ").");
+                
                 Move3dAdapter.myWorld.changeNickName(players.get(sessionID), newNick);
             } catch (Exception e) {
                 // Skip, message not well formatted
@@ -176,7 +207,20 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
                 logger.warn("Message not well formatted, skipped.", aiobe);
             }
             try {
-                Move3dAdapter.myWorld.updateMyMsg(players.get(sessionID), newMsg);
+                String ip = "";
+                String player = players.get(sessionID);
+                Map<String,String> sessionInfo = sessions.get(sessionID);
+                
+                if (sessionInfo == null) {
+                     logger.warn("Message received from non-existent session: " + message);
+                } else {
+                    //  read from info the IP of the user
+                    ip =  sessionInfo.get("REMOTE_IP");
+                }
+                
+                tracer.info("New message: " + newMsg + " from " + player + " (" + ip + ").");
+                
+                Move3dAdapter.myWorld.updateMyMsg(player, newMsg);
             }  catch (Exception e) {
                 // Skip, message not well formatted
                 logger.warn("Unexpected error handling new message from user.", e);

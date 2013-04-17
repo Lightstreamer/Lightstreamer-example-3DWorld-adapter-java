@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
@@ -32,11 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.nio.ByteBuffer;
 
-import javax.management.ObjectName;
-
-
 import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 
 import com.lightstreamer.interfaces.data.DataProviderException;
 import com.lightstreamer.interfaces.data.FailureException;
@@ -62,8 +57,8 @@ public class Move3dAdapter implements SmartDataProvider {
     public static Logger logger;
     
     /**
-     * Private logger; a specific "LS_Move3dDemo_Logger" category
-     * should be supplied by log4j configuration.
+     * Private logger; a specific "LS_3DWorldDemo_Logger" category
+     * should be supplied by logback configuration.
      */
     public static Logger tracer = null;
     
@@ -90,7 +85,9 @@ public class Move3dAdapter implements SmartDataProvider {
     
     private static final ConcurrentSkipListSet<String> subscribed = new  ConcurrentSkipListSet<String>();
     
-    public static TheWorld myWorld = new TheWorld();
+    private static WorldsStatistics stats = null;
+    
+    public static TheWorld myWorld = null;
     
     private String roundToSend(double value, String precision) {
         String tmp = ""+value;
@@ -111,7 +108,7 @@ public class Move3dAdapter implements SmartDataProvider {
         return tmp;
     }
 
-    private String roundToSend(double value, int pre) {
+    private static String roundToSend(double value, int pre) {
         String tmp = ""+value;
 
         int cut = tmp.length() - tmp.indexOf(".") - 1;
@@ -254,7 +251,15 @@ public class Move3dAdapter implements SmartDataProvider {
             }
         }
         
-        logger.info("STATISTICS - Total players in the demo: " + sum + ".");
+        // Ghosts are ghosts!
+        sum -= GHOST_PLAYERS;
+        
+        // update statistics.
+        stats.feedPlayers(sum);
+        
+        if (tracer != null) {
+            tracer.debug("Statistics - Total players in the demo: " + sum + ".");
+        }
         if ( listener != null && goStats) {
             HashMap<String, String> update = new HashMap<String, String>();
             
@@ -268,11 +273,17 @@ public class Move3dAdapter implements SmartDataProvider {
     public void postOverallBandwidth() {
         double totBandwidth = Move3dMetaAdapter.getTotalBandwidthOut();
         
-        logger.info("STATISTICS - Total bandwidth for the demo: " + totBandwidth + ".");
+        if ( tracer != null ) {
+            tracer.debug("Statistics - Total bandwidth for the demo: " + totBandwidth + ".");
+        }
+        
+        // update statistics.
+        stats.feedBandwidth(totBandwidth);
+        
         if ( listener != null && goStats) {
             HashMap<String, String> update = new HashMap<String, String>();
             
-            update.put("total_bandwidth", totBandwidth+"");
+            update.put("total_bandwidth", roundToSend(totBandwidth, 2));
             listener.update(STATISTICS, update, false);
         }
         
@@ -281,12 +292,17 @@ public class Move3dAdapter implements SmartDataProvider {
     
     public static void postBandwith(String itemName, Double d) {
         final HashMap<String, String> update = new HashMap<String, String>();
-        update.put("currentBandwidth", d.toString());
+        update.put("currentBandwidth", roundToSend(d, 2));
         if ( tracer != null ) {
             tracer.debug("Update current bandwidth for user " + itemName + ": " + d);
         }
         
         listener.update(itemName,update,false);
+    }
+    
+    public void flushStatistics() {
+        tracer.info(stats);
+        stats.reset();
     }
     
     public void sendCommands(String user, String cmd) {
@@ -305,30 +321,7 @@ public class Move3dAdapter implements SmartDataProvider {
             Iterator<String> i = null;
 
             synchronized (myWorld) {
-                
-                /*
-                if ( userWorldMap.containsKey(user) ) {
-                    ArrayList <String> aL = worldsPrecisions.get(userWorldMap.get(user)); 
-                    if (aL != null) {
-                        i = aL.iterator();
-                    }
-                } else {
-                    if ( !user.startsWith("GhostPlayer_") ) {
-                        
-                        logger.warn("worldsPrecisions void for " + s);
-                        
-                        if ( !myWorld.playerGameOver(user) ) {
-                            logger.warn("Game over procedure failed for " + user + " player (unknow player).");
-                            throw new SubscriptionException("Unknow player.");
-                        } else {
-                            logger.info(user + " game over!");
-                        }
-                    }
-                    
-                    return ;
-                }
-                    
-                */
+
                 Enumeration<String> e = customWorlds.keys();
                 while ( e.hasMoreElements()) {
                     s = e.nextElement();
@@ -572,26 +565,20 @@ public class Move3dAdapter implements SmartDataProvider {
     
     @Override
     public void init(Map params, File configDir) throws DataProviderException {
-        String logConfig = (String) params.get("log_config");
-        
-        if (logConfig != null) {
-            File logConfigFile = new File(configDir, logConfig);
-            String logRefresh = (String) params.get("log_config_refresh_seconds");
-            if (logRefresh != null) {
-                DOMConfigurator.configureAndWatch(logConfigFile.getAbsolutePath(), Integer.parseInt(logRefresh) * 1000);
-            } else {
-                DOMConfigurator.configure(logConfigFile.getAbsolutePath());
-            }
-            
-            tracer = Logger.getLogger("LS_Move3dDemo_Logger");
-        }
+       
         try {
             logger = Logger.getLogger("LS_demos_Logger.Move3dDemo");
+            
+            tracer = Logger.getLogger("LS_3DWorldDemo_Logger.tracer");
+            tracer.info("LS_3DWorldDemo_Logger start.");
            
         } catch (Exception e) { 
             System.out.println("Loggers failed to load: " + e);
         }
         
+        //stats = new WorldsStatistics(GHOST_PLAYERS);
+        stats = new WorldsStatistics(0);
+        myWorld = new TheWorld();
         
         synchronized(myWorld) {
             myWorld.setListener(this);
@@ -663,7 +650,7 @@ public class Move3dAdapter implements SmartDataProvider {
                 } else {
                     // No impulse for this ghost player.
                 }
-            }
+            }       
             customWorlds.put(DEFAULT_WORLD, aL);
         }
         
@@ -838,6 +825,7 @@ public class Move3dAdapter implements SmartDataProvider {
             // Nothing to do.
         } else if (itemName.startsWith(STATISTICS)) {
             goStats = true;
+            sumTotalPlayer();
         } else {
             subscribed.add(itemName);
             logger.info(itemName + " subscribed!");

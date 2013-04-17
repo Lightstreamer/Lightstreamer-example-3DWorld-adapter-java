@@ -22,13 +22,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerFactory;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 
 public class PollsBandwidth extends Thread {
 

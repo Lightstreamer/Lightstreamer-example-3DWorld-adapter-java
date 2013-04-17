@@ -33,13 +33,13 @@ public class TheWorld extends Thread {
     
     private Object listMutex = new Object();
     
-    private String name = "Default";
+    private String name = "Universe";
     
     private static final int BASE_RATE = 10;
     
     private int frameRate = 10;
     
-    private double factorWorld = 1;
+    private double factorWorld = 1.0;
     
     private boolean started = false;
     
@@ -50,6 +50,10 @@ public class TheWorld extends Thread {
     
     public TheWorld() {
         super();
+        
+        this.factorWorld = (double)(this.frameRate / BASE_RATE);
+        
+        Move3dAdapter.logger.debug("World " + this.name + " created.");
     }
     
     public TheWorld(String name) {
@@ -168,6 +172,7 @@ public class TheWorld extends Thread {
     @Override
     public void run () {
         int ticksCount = 0;
+        int nowStats = 0;
         
         this.started = true;
         while (true) {
@@ -186,9 +191,14 @@ public class TheWorld extends Thread {
                 }
                 
                 try {
-                    if ( ticksCount++ > (10000/this.frameRate) ) {
+                    // Post overall bandwidth utilization.
+                    if ( ticksCount++ > ((2000/this.frameRate)*this.factorWorld) ) {
                         this.listener.postOverallBandwidth();
                         ticksCount = 0;
+                        if ( nowStats++ > 1780 ) {
+                            this.listener.flushStatistics();
+                            nowStats = 0;
+                        }
                     }
                 } catch (Exception e) {
                     Move3dAdapter.logger.warn("Unexpected error in send overall Bandwidth information.", e);
