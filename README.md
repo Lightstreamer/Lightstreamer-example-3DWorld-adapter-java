@@ -29,37 +29,20 @@ Build the Adapter Set
 
 Before you can build the Adapter Set some dependencies need to be solved:
 
--  Get the ls-adapter-interface.jar file from the [Lightstreamer 5 Colosseo distribution](http://www.lightstreamer.com/download).
+-  Get the ls-adapter-interface.jar, ls-generic-adapters.jar, and log4j-1.2.15.jar files from the [Lightstreamer 5 Colosseo distribution](http://www.lightstreamer.com/download).
 -  Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a croftsoft-math.jar version. Please be sure to include: applet, io, inlp, lang and math packages.
 
-Build the java source files (in the src folder) into a LS_DemoQuat3d_Adapters.jar file. Here an ant axample for that:
-```xml
-  <target name="compile" >
-    <javac source="1.7" target="1.7" destdir="${build}" fork="false" deprecation="true" nowarn="on" debug="on" includeAntRuntime="false">
-      <src path="${src}"/>
-      <classpath>
-        <fileset dir="${compile_libs}/ls-adapter-interface">
-          <include name="ls-adapter-interface.jar"/>
-        </fileset>
-        <fileset dir="${compile_libs}/croftsoft">
-          <include name="croftsoft-math.jar"/>
-        </fileset>
-        <fileset dir="${compile_libs}/ls-generic-adapters">
-          <include name="ls-generic-adapters.jar"/>
-        </fileset>
-      </classpath>
-    </javac>
-  </target>
-
-  <target name="create_jar" depends="compile" >
-    <jar jarfile="${dest_dir}/lib/LS_DemoQuat3d_Adapters.jar" basedir="${build}" />
-  </target>
+Build the java source files (in the src folder) into a LS_3DWorldDemo_Adapters.jar file. Here an axample for that:
+```sh
+  >javac -source 1.7 -target 1.7 -nowarn -g -classpath compile_libs\croftsoft\croftsoft-math.jar;compile_libs\ls-adapter-interface\ls-adapter-interface.jar;compile_libs\ls-generic-adapters\ls-generic-adapters.jar;compile_libs\log4j-1.2.15.jar -sourcepath src -d tmp_classes src\com\lightstreamer\adapters\DemoQuat3d\Move3dAdapter.java
+  
+  >jar cvf LS_3DWorldDemo_Adapters.jar -C tmp_classes com
 ```
 
 Prepare Lightstreamer
 ---------------------
 
-1.    Download and install Lightstreamer
+1.    Download and install Lightstreamer.
 2.    Go to the "adapters" folder of your Lightstreamer Server installation. Create a new folder and call it "3DWorldDemo". Create a "lib" folder inside it.
 3.    Copy the "ls-adapter-interface.jar" file from "Lightstreamer/lib" in the newly created "lib" folder.
 4.    Copy the "croftsoft-math.jar" file from "Lightstreamer/lib" in the newly created "lib" folder.
