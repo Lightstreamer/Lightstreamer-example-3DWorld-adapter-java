@@ -3,20 +3,23 @@
 =====================
 
 
-A demo showing the potentials of the integration of Lightstreamer in any multiplayer 3D world simulation. 
-This project include the full Adapter Set for Lightstreamer written in Java. Particular attention is paid to aspects of real-time communication and opportunities to minimize the network bandwidth utilization. Consider that the Demo allows two modality:
-- the physics calculations are performed both client side and server side, the rendering is based on client side physics calculations that is resync-ed with the server every N seconds. On the other hand the Matrix panel is only fed with server-side data.
-- the physics engine runs completely on the server side and the positional and rotational data for all the players in the game are transmitted to all the clients with a frequency of up to 100Hz.
+
+This demo shows how well the real-time positions of objects in a multiplayer 3D world can be delivered over WebSockets and HTTP via Lightstreamer Server. Particular attention is paid to aspects of real-time communication and opportunities to minimize the network bandwidth utilization. 
+Please read [the article](http://blog.lightstreamer.com/) to fully understand this application and play the demo [here](http://www.lightstreamer.com/demo/3DWorldDemo/).  There are two ways the demo can work.
+- First way: the physics engine runs on the client side, which periodically synchronizes with the authoritative server. 
+- Second way: the physics engine runs on the server side only and the positional and rotational data for all the players in a world are transmitted to all the clients. In other words, the clients are pure renderers.
+
+This project include the implementation of the Adapter Set for Lightstreamer written in Java.
 
 Java Data Adapter and MetaData Adapter
 --------------------------------------
 
-A Java Adapter implementing both SmartDataProvider interface and MetadataProviderAdapter interface to inject data to lightstreamer server with real time information about the movement of every player in the world.
+A Java Adapter implementing both SmartDataProvider interface and MetadataProviderAdapter interface to inject data to lightstreamer server with real time information about the movement of every object in the world.
 Both traslations and rotations in 3d space are calculated by the adapter and reatrasmitted to the clients in a 7-values array: Position for axis X, Position for axis Y, Position for axis Z, and a Quaternion object for rotation information <x, y, z, Quat(X, Y, Z, W)>.
-Precision and format of data in output are configurable by each player among the choice: 
+Precision and format of data in output are configurable by each user among the choice: 
 - binary base 64 encoded float numbers single precision;
 - binary base 64 encoded float numbers double precision;
-- string with fixed decimal places length (ranging from 1 to 18).
+- string with fixed decimal places length (ranging from 1 to 15).
 
 The adapter receive input commands from Lightstreamer server that forwards messages arrived from clients to the adapter in relation to:
 - change nick name for the player;
