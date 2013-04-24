@@ -1,7 +1,6 @@
 
-3D World Demo Adapter
+Lightstreamer 3D World Demo Adapter
 =====================
-
 
 
 This demo shows how well the real-time positions of objects in a multiplayer 3D world can be delivered over WebSockets and HTTP via Lightstreamer Server. Particular attention is paid to aspects of real-time communication and opportunities to minimize the network bandwidth utilization. 
@@ -37,7 +36,7 @@ Before you can build the Adapter Set some dependencies need to be solved:
 
 Build the java source files (in the src folder) into a LS_3DWorldDemo_Adapters.jar file. Here an axample for that:
 ```sh
-  >javac -source 1.6 -target 1.6 -nowarn -g -classpath compile_libs/croftsoft/croftsoft-math.jar;compile_libs/ls-adapter-interface/ls-adapter-interface.jar;compile_libs/ls-generic-adapters/ls-generic-adapters.jar;compile_libs/log4j-1.2.15.jar -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/DemoQuat3d/Move3dAdapter.java
+  >javac -source 1.7 -target 1.7 -nowarn -g -classpath compile_libs/croftsoft/croftsoft-math.jar;compile_libs/ls-adapter-interface/ls-adapter-interface.jar;compile_libs/ls-generic-adapters/ls-generic-adapters.jar;compile_libs/log4j-1.2.15.jar -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/DemoQuat3d/Move3dAdapter.java
   
   >jar cvf LS_3DWorldDemo_Adapters.jar -C tmp_classes com
 ```
@@ -54,6 +53,10 @@ Prepare Lightstreamer
 7.    [Optional] Supply a specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" category in logback configuration <"Lightstreamer/conf/lightstreamer_log_conf.xml>.
 8.    Launch Lightstreamer.
 
+See Also
+--------
+
+* [Lightstreamer 3D World Demo Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript)
 
 Lightstreamer Compatibility Notes
 ---------------------------------
