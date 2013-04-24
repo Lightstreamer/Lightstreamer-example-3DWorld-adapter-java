@@ -77,6 +77,6 @@ public class WorldsStatistics {
     
     @Override
     public String toString() {
-        return "Statistics - Max Bandwidth: " + (double)((double)(Math.round(maxBandwidth*100))/100.0) + "Kbps, Min Bandwidth: " + (double)((double)(Math.round(minBandwidth*100))/100.0) + ",Kbps max players: " + maxPlayers + ", min players: " + minPlayers + ".";
+        return "Statistics - Max Bandwidth: " + (double)((double)(Math.round(maxBandwidth*100))/100.0) + " Kbps, Min Bandwidth: " + (double)((double)(Math.round(minBandwidth*100))/100.0) + " Kbps, Max Players: " + maxPlayers + ", Min Players: " + minPlayers + ".";
     }
 }
