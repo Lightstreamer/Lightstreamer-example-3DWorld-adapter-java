@@ -61,4 +61,4 @@ See Also
 Lightstreamer Compatibility Notes
 ---------------------------------
 
-- Compatible with Lightstreamer Server 5.1 or newer.
+- Compatible with Lightstreamer SDK for Java Adapters since 5.1
