@@ -1,7 +1,4 @@
-
-Lightstreamer 3D World Demo Adapter
-=====================
-
+# Lightstreamer 3D World Demo Adapter #
 
 This demo shows how well the real-time positions of objects in a multiplayer 3D world can be delivered over WebSockets and HTTP via Lightstreamer Server. Particular attention is paid to aspects of real-time communication and opportunities to minimize the network bandwidth utilization. 
 Please read [the article](http://blog.lightstreamer.com/) to fully understand this application and play the demo [here](http://www.lightstreamer.com/demo/3DWorldDemo/).  There are two ways the demo can work.
@@ -10,8 +7,7 @@ Please read [the article](http://blog.lightstreamer.com/) to fully understand th
 
 This project include the implementation of the Adapter Set for Lightstreamer written in Java.
 
-Java Data Adapter and MetaData Adapter
---------------------------------------
+## Java Data Adapter and MetaData Adapter ##
 
 A Java Adapter implementing both SmartDataProvider interface and MetadataProviderAdapter interface to inject data to lightstreamer server with real time information about the movement of every object in the world.
 Both traslations and rotations in 3d space are calculated by the adapter and reatrasmitted to the clients in a 7-values array: Position for axis X, Position for axis Y, Position for axis Z, and a Quaternion object for rotation information <x, y, z, Quat(X, Y, Z, W)>.
@@ -26,8 +22,7 @@ The adapter receive input commands from Lightstreamer server that forwards messa
 - change world scenario for the player;
 - movement commands.
 
-Build the Adapter Set
----------------------
+# Build #
 
 Before you can build the Adapter Set some dependencies need to be solved:
 
@@ -41,8 +36,7 @@ Build the java source files (in the src folder) into a LS_3DWorldDemo_Adapters.j
   >jar cvf LS_3DWorldDemo_Adapters.jar -C tmp_classes com
 ```
 
-Prepare Lightstreamer
----------------------
+# Deploy #
 
 1.    Download and install Lightstreamer.
 2.    Go to the "adapters" folder of your Lightstreamer Server installation. Create a new folder and call it "3DWorldDemo". Create a "lib" folder inside it.
@@ -53,12 +47,16 @@ Prepare Lightstreamer
 7.    [Optional] Supply a specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" category in logback configuration <"Lightstreamer/conf/lightstreamer_log_conf.xml>.
 8.    Launch Lightstreamer.
 
-See Also
---------
+# See Also #
+
+## Clients using this Adapter ##
 
 * [Lightstreamer 3D World Demo Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript)
 
-Lightstreamer Compatibility Notes
----------------------------------
+## Related projects ##
+
+* [Lightstreamer Reusable Metadata Adapter in Java](https://github.com/Weswit/Lightstreamer-example-ReusableMetadata-adapter-java)
+
+# Lightstreamer Compatibility Notes #
 
 - Compatible with Lightstreamer SDK for Java Adapters since 5.1
