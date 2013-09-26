@@ -10,7 +10,7 @@ There are two ways the demo can work.
 - First way: the physics engine runs on the client side, which periodically synchronizes with the authoritative server. 
 - Second way: the physics engine runs on the server side only and the positional and rotational data for all the players in a world are transmitted to all the clients. In other words, the clients are pure renderers.
 
-This project include the implementation of the Adapter Set for Lightstreamer written in Java.
+This project includes the implementation of the Adapter Set for Lightstreamer written in Java.
 
 ## Java Data Adapter and MetaData Adapter ##
 
