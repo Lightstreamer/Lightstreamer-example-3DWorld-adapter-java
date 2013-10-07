@@ -14,8 +14,8 @@ This project includes the implementation of the Adapter Set for Lightstreamer wr
 
 ## Java Data Adapter and MetaData Adapter ##
 
-A Java Adapter implementing both the SmartDataProvider interface and the MetadataProviderAdapter interface to inject data into Lightstreamer server with real time information about the movement of every object in the world.
-Both translations and rotations in 3D space are calculated by the adapter and transmitted to the clients in a 7-value array: position for axis X, position for axis Y, position for axis Z, and a quaternion object for rotation information <x, y, z, Quat(X, Y, Z, W)>.
+A Java Adapter implementing both the [SmartDataProvider](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/data/SmartDataProvider.html) interface and the [MetadataProviderAdapter](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/metadata/MetadataProviderAdapter.html) interface to inject data into Lightstreamer server with real time information about the movement of every object in the world.
+Both translations and rotations in 3D space are calculated by the adapter and transmitted to the clients in a 7-value array: position for axis X, position for axis Y, position for axis Z, and a quaternion object for rotation information: x, y, z, Quat(X, Y, Z, W).
 Precision and format of data in output are configurable by each user among these choices: 
 - binary Base64 encoded float numbers in single precision;
 - binary Base64 encoded float numbers in double precision;
