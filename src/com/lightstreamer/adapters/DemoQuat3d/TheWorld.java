@@ -147,6 +147,8 @@ public class TheWorld extends Thread {
             } else {
                 boxN.setLastMsg(newMsg);
             }
+            
+            this.listener.sendSocial(boxN.getOrigName(), boxN);
         } else {
             Move3dAdapter.logger.warn(user + " not found!");
         }
@@ -162,6 +164,8 @@ public class TheWorld extends Thread {
             } else {
                 boxN.setNickName(nick);
             }
+            
+            this.listener.sendSocial(boxN.getOrigName(), boxN);
         } else {
             Move3dAdapter.logger.warn(user + " not found!");
         }

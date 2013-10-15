@@ -313,6 +313,48 @@ public class Move3dAdapter implements SmartDataProvider {
         return ;
     }
     
+    public void sendSocial(String user, BaseModelBody box) {
+        String s = null;
+        String precision;
+        String userWorld = null;
+        Iterator<String> i = null;
+        
+        synchronized (myWorld) {
+
+            Enumeration<String> e = customWorlds.keys();
+            while ( e.hasMoreElements()) {
+                s = e.nextElement();
+                if ( (customWorlds.get(s)).contains(user) ) {
+                    userWorld = s;
+                    ArrayList <String> aL = worldsPrecisions.get(s);
+                    if (aL != null) {
+                        i = aL.iterator();
+                    }
+                } 
+            }
+        
+            if ( i == null ) {
+                return ;                    
+            }
+            
+            while (i.hasNext()) {
+                HashMap<String, String> update = new HashMap<String, String>();
+                precision = i.next();
+            
+                update.put("key", user+precision);
+                update.put("command", "UPDATE");
+                update.put("nick", box.getNickName());
+                update.put("msg", box.getLastMsg());
+                
+                logger.info("Update for item " + "Custom_list_"+userWorld+precision + ", nick: " + box.getNickName());
+                listener.update("Custom_list_"+userWorld+precision,update,false);
+            }
+            
+        }
+                
+        return ;
+    }
+    
     public void sendUpdates(String user, BaseModelBody box) {
         try {
             String s = null;
@@ -374,8 +416,9 @@ public class Move3dAdapter implements SmartDataProvider {
                         }
                         
                         HashMap<String, String> update = new HashMap<String, String>();
-                        update.put("nick", box.getNickName());
-                        update.put("msg", box.getLastMsg());
+                        //update.put("nick", box.getNickName());
+                        //update.put("msg", box.getLastMsg());
+                        
                         update.put("lifeSpan", box.getLifeSpan()+"");
 
                         if ( precision.equals("_bd") ) {
@@ -438,12 +481,12 @@ public class Move3dAdapter implements SmartDataProvider {
                             update.put("rotW", roundToSend(box.getAxisAngle().toQuat().getW(), px));
                         }
                         
-                        update.put("dVx", box.getvX()+"");
-                        update.put("dVy", box.getvY()+"");
-                        update.put("dVz", box.getvZ()+"");
-                        update.put("dRx", box.getDeltaRotX()+"");
-                        update.put("dRy", box.getDeltaRotY()+"");
-                        update.put("dRz", box.getDeltaRotZ()+"");
+                        update.put("Vx", box.getvX()+"");
+                        update.put("Vy", box.getvY()+"");
+                        update.put("Vz", box.getvZ()+"");
+                        update.put("momx", box.getDeltaRotX()+"");
+                        update.put("momy", box.getDeltaRotY()+"");
+                        update.put("momz", box.getDeltaRotZ()+"");
                         
                         if ( tracer != null ) {
                             tracer.debug("Update for " + user+precision);
@@ -489,6 +532,10 @@ public class Move3dAdapter implements SmartDataProvider {
                         HashMap<String, String> update = new HashMap<String, String>();
                         update.put("command", command);
                         
+                        if (command.equals("ADD")) {
+                            update.put("nick", key);
+                        }
+                        
                         precision = i.next();
                         update.put("key", key+precision);
                     
@@ -511,7 +558,7 @@ public class Move3dAdapter implements SmartDataProvider {
         executor.execute(updateTask);
     }
 
-    private void addList(final String command, final String itemName, final String key) {
+    private void addList(final String command, final String itemName, final String key, final String precision) {
         final HashMap<String, String> update = new HashMap<String, String>();
         
         if ( listener == null ) {
@@ -519,7 +566,8 @@ public class Move3dAdapter implements SmartDataProvider {
         }
         
         update.put("command", command);
-        update.put("key", key);
+        update.put("key", key+"_"+precision);
+        update.put("nick", key);
         
         //If we have a listener create a new Runnable to be used as a task to pass the
         //new update to the listener
@@ -749,7 +797,7 @@ public class Move3dAdapter implements SmartDataProvider {
                 String pieces[] = parser.split("_");
                 
                 if (pieces.length > 2) {
-                    logger.debug("Subscribe request for " + itemName + ". Precision: " + pieces[2] + ", world name: " + pieces[1]);
+                    logger.info("Subscribe request for " + itemName + ". Precision: " + pieces[2] + ", world name: " + pieces[1]);
                     if ( customWorlds.containsKey(pieces[1]) ) {
                         // Estraggo la lista dei players di questo mondo.
                         //TheWorld w = customWorlds.get(pieces[1]);
@@ -759,7 +807,7 @@ public class Move3dAdapter implements SmartDataProvider {
     
                         while(keys.hasNext()) {
                             String user = keys.next();
-                            this.addList("ADD", itemName, user+"_"+pieces[2]);
+                            this.addList("ADD", itemName, user, pieces[2]);
                         }
                         sendListEOS();
                         
@@ -791,7 +839,7 @@ public class Move3dAdapter implements SmartDataProvider {
             String parser = itemName.substring(LOGON_CUSTOM_PREFIX.length());
             String pieces[] = parser.split("_");
                 
-            logger.debug("Logon for custom world " + pieces[0] + " user: " + pieces[1]);
+            logger.info("Logon for custom world " + pieces[0] + " user: " + pieces[1]);
             synchronized (myWorld) {    
                 if (pieces.length > 1) {
                     if ( customWorlds.containsKey(pieces[0]) ) {
