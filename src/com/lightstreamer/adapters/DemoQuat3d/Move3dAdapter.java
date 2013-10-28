@@ -331,23 +331,23 @@ public class Move3dAdapter implements SmartDataProvider {
                         i = aL.iterator();
                     }
                 } 
-            }
         
-            if ( i == null ) {
-                return ;                    
-            }
+                if ( i == null ) {
+                    continue ;                    
+                }
             
-            while (i.hasNext()) {
-                HashMap<String, String> update = new HashMap<String, String>();
-                precision = i.next();
+                while (i.hasNext()) {
+                    HashMap<String, String> update = new HashMap<String, String>();
+                    precision = i.next();
             
-                update.put("key", user+precision);
-                update.put("command", "UPDATE");
-                update.put("nick", box.getNickName());
-                update.put("msg", box.getLastMsg());
+                    update.put("key", user+precision);
+                    update.put("command", "UPDATE");
+                    update.put("nick", box.getNickName());
+                    update.put("msg", box.getLastMsg());
                 
-                logger.info("Update for item " + "Custom_list_"+userWorld+precision + ", nick: " + box.getNickName());
-                listener.update("Custom_list_"+userWorld+precision,update,false);
+                    logger.info("Update for item " + "Custom_list_"+userWorld+precision + ", nick: " + box.getNickName());
+                    listener.update("Custom_list_"+userWorld+precision,update,false);
+                }
             }
             
         }
