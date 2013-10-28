@@ -361,6 +361,7 @@ public class Move3dAdapter implements SmartDataProvider {
             int indx = 0;
             String precision;
             Iterator<String> i = null;
+            boolean checkGameOver = true;
 
             synchronized (myWorld) {
 
@@ -373,130 +374,135 @@ public class Move3dAdapter implements SmartDataProvider {
                             i = aL.iterator();
                         }
                     } 
-                }
+                
             
-                if ( i == null ) {
-                    if ( !user.startsWith("GhostPlayer_") ) {
-                        
-                        logger.warn("worldsPrecisions void for " + s);
-                        
-                        if ( !myWorld.playerGameOver(user) ) {
-                            logger.warn("Game over procedure failed for " + user + " player (unknow player).");
-                            // throw new SubscriptionException("Unknow player.");
+                    if ( i == null ) {
+                        if ( !user.startsWith("GhostPlayer_") ) {
+                            checkGameOver = true;
                         } else {
-                            logger.info(user + " game over!");
+                            checkGameOver = false;
+                        }
+                        
+                        continue ;
+                    } else {
+                        checkGameOver = false;
+                    }
+    
+                    
+                    while (i.hasNext()) {
+                        precision = i.next();
+                        if (subscribed.contains(user+precision)) {
+                            
+                            if ( !user.startsWith("GhostPlayer_") ) {
+                                if ( box.getInactivityPeriod() > MAX_INACTIVITY ) {
+    
+                                    logger.info(user + " gamed over for inactivity.");
+                                
+                                    Move3dMetaAdapter.terminateUser(user);
+                                    
+                                    if ( !myWorld.playerGameOver(user) ) {
+                                        logger.warn("Game over procedure failed for " + user + " player (unknow player).");
+                                        // throw new SubscriptionException("Unknow player.");
+                                    }
+                                
+                                    return ;
+                                }
+                            }
+                            
+                            HashMap<String, String> update = new HashMap<String, String>();
+                            //update.put("nick", box.getNickName());
+                            //update.put("msg", box.getLastMsg());
+                            
+                            update.put("lifeSpan", box.getLifeSpan()+"");
+    
+                            if ( precision.equals("_bd") ) {
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getX()),true);
+                                indx = s.indexOf("=");
+                                update.put("posX", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getY()),true);
+                                indx = s.indexOf("=");
+                                update.put("posY", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getZ()),true);
+                                indx = s.indexOf("=");
+                                update.put("posZ", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getX()),true);
+                                indx = s.indexOf("=");
+                                update.put("rotX", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getY()),true);
+                                indx = s.indexOf("=");
+                                update.put("rotY", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getZ()),true);
+                                indx = s.indexOf("=");
+                                update.put("rotZ", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getW()),true);
+                                indx = s.indexOf("=");
+                                update.put("rotW", s.substring(0, indx));
+                            } else if ( precision.equals("_bs") ) {
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getX()),true);
+                                indx = s.indexOf("=");
+                                update.put("posX", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getY()),true);
+                                indx = s.indexOf("=");
+                                update.put("posY", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getZ()),true);
+                                indx = s.indexOf("=");
+                                update.put("posZ", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getX()),true);
+                                indx = s.indexOf("=");
+                                update.put("rotX", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getY()),true);
+                                indx = s.indexOf("=");
+                                update.put("rotY", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getZ()),true);
+                                indx = s.indexOf("=");
+                                update.put("rotZ", s.substring(0, indx));
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getW()),true);
+                                indx = s.indexOf("=");
+                                update.put("rotW", s.substring(0, indx));
+                            } else {
+                                int px = 8;
+                                try {
+                                    px = new Integer(precision.substring(2)).intValue();
+                                } catch (NumberFormatException  nfe) {
+                                    logger.warn("Precision requested invalid (" + precision +") 8 assumed.");
+                                }
+                                update.put("posX", roundToSend(box.getX(), px));
+                                update.put("posY", roundToSend(box.getY(), px));
+                                update.put("posZ", roundToSend(box.getZ(), px));
+                                update.put("rotX", roundToSend(box.getAxisAngle().toQuat().getX(), px));
+                                update.put("rotY", roundToSend(box.getAxisAngle().toQuat().getY(), px));
+                                update.put("rotZ", roundToSend(box.getAxisAngle().toQuat().getZ(), px));
+                                update.put("rotW", roundToSend(box.getAxisAngle().toQuat().getW(), px));
+                            }
+                            
+                            update.put("Vx", box.getvX()+"");
+                            update.put("Vy", box.getvY()+"");
+                            update.put("Vz", box.getvZ()+"");
+                            update.put("momx", box.getDeltaRotX()+"");
+                            update.put("momy", box.getDeltaRotY()+"");
+                            update.put("momz", box.getDeltaRotZ()+"");
+                            
+                            if ( tracer != null ) {
+                                tracer.debug("Update for " + user+precision);
+                            }
+                                
+                            if (listener != null) {
+                                listener.update(user+precision,update,false);
+                            }
                         }
                     }
-                    
-                    return ;
-                }
-            
-                if ( i == null ) {
-                    return ;                    
                 }
                 
-                while (i.hasNext()) {
-                    precision = i.next();
-                    if (subscribed.contains(user+precision)) {
-                        
-                        if ( !user.startsWith("GhostPlayer_") ) {
-                            if ( box.getInactivityPeriod() > MAX_INACTIVITY ) {
-
-                                logger.info(user + " gamed over for inactivity.");
-                            
-                                Move3dMetaAdapter.terminateUser(user);
-                                
-                                if ( !myWorld.playerGameOver(user) ) {
-                                    logger.warn("Game over procedure failed for " + user + " player (unknow player).");
-                                    // throw new SubscriptionException("Unknow player.");
-                                }
-                            
-                                return ;
-                            }
-                        }
-                        
-                        HashMap<String, String> update = new HashMap<String, String>();
-                        //update.put("nick", box.getNickName());
-                        //update.put("msg", box.getLastMsg());
-                        
-                        update.put("lifeSpan", box.getLifeSpan()+"");
-
-                        if ( precision.equals("_bd") ) {
-                            s = (new Base64Manager()).encodeBytes(toByteArray(box.getX()),true);
-                            indx = s.indexOf("=");
-                            update.put("posX", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray(box.getY()),true);
-                            indx = s.indexOf("=");
-                            update.put("posY", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray(box.getZ()),true);
-                            indx = s.indexOf("=");
-                            update.put("posZ", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getX()),true);
-                            indx = s.indexOf("=");
-                            update.put("rotX", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getY()),true);
-                            indx = s.indexOf("=");
-                            update.put("rotY", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getZ()),true);
-                            indx = s.indexOf("=");
-                            update.put("rotZ", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getW()),true);
-                            indx = s.indexOf("=");
-                            update.put("rotW", s.substring(0, indx));
-                        } else if ( precision.equals("_bs") ) {
-                            s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getX()),true);
-                            indx = s.indexOf("=");
-                            update.put("posX", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getY()),true);
-                            indx = s.indexOf("=");
-                            update.put("posY", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getZ()),true);
-                            indx = s.indexOf("=");
-                            update.put("posZ", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getX()),true);
-                            indx = s.indexOf("=");
-                            update.put("rotX", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getY()),true);
-                            indx = s.indexOf("=");
-                            update.put("rotY", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getZ()),true);
-                            indx = s.indexOf("=");
-                            update.put("rotZ", s.substring(0, indx));
-                            s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getW()),true);
-                            indx = s.indexOf("=");
-                            update.put("rotW", s.substring(0, indx));
-                        } else {
-                            int px = 8;
-                            try {
-                                px = new Integer(precision.substring(2)).intValue();
-                            } catch (NumberFormatException  nfe) {
-                                logger.warn("Precision requested invalid (" + precision +") 8 assumed.");
-                            }
-                            update.put("posX", roundToSend(box.getX(), px));
-                            update.put("posY", roundToSend(box.getY(), px));
-                            update.put("posZ", roundToSend(box.getZ(), px));
-                            update.put("rotX", roundToSend(box.getAxisAngle().toQuat().getX(), px));
-                            update.put("rotY", roundToSend(box.getAxisAngle().toQuat().getY(), px));
-                            update.put("rotZ", roundToSend(box.getAxisAngle().toQuat().getZ(), px));
-                            update.put("rotW", roundToSend(box.getAxisAngle().toQuat().getW(), px));
-                        }
-                        
-                        update.put("Vx", box.getvX()+"");
-                        update.put("Vy", box.getvY()+"");
-                        update.put("Vz", box.getvZ()+"");
-                        update.put("momx", box.getDeltaRotX()+"");
-                        update.put("momy", box.getDeltaRotY()+"");
-                        update.put("momz", box.getDeltaRotZ()+"");
-                        
-                        if ( tracer != null ) {
-                            tracer.debug("Update for " + user+precision);
-                        }
-                            
-                        if (listener != null) {
-                            listener.update(user+precision,update,false);
-                        }
+                if (checkGameOver) {
+                    logger.warn("worldsPrecisions void for " + s);
+                    
+                    if ( !myWorld.playerGameOver(user) ) {
+                        logger.warn("Game over procedure failed for " + user + " player (unknow player).");
+                        // throw new SubscriptionException("Unknow player.");
+                    } else {
+                        logger.info(user + " game over!");
                     }
-                }  
+                }
             }
         } catch (Exception e) {
             // Skip.
