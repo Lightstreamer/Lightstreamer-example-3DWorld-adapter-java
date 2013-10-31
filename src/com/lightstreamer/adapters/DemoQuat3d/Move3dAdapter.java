@@ -317,12 +317,13 @@ public class Move3dAdapter implements SmartDataProvider {
         String s = null;
         String precision;
         String userWorld = null;
-        Iterator<String> i = null;
         
         synchronized (myWorld) {
 
             Enumeration<String> e = customWorlds.keys();
             while ( e.hasMoreElements()) {
+                Iterator<String> i = null;
+                
                 s = e.nextElement();
                 if ( (customWorlds.get(s)).contains(user) ) {
                     userWorld = s;
@@ -360,13 +361,14 @@ public class Move3dAdapter implements SmartDataProvider {
             String s = null;
             int indx = 0;
             String precision;
-            Iterator<String> i = null;
             boolean checkGameOver = true;
 
             synchronized (myWorld) {
 
                 Enumeration<String> e = customWorlds.keys();
                 while ( e.hasMoreElements()) {
+                    Iterator<String> i = null;
+                    
                     s = e.nextElement();
                     if ( (customWorlds.get(s)).contains(user) ) {
                         ArrayList <String> aL = worldsPrecisions.get(s);
@@ -378,14 +380,14 @@ public class Move3dAdapter implements SmartDataProvider {
             
                     if ( i == null ) {
                         if ( !user.startsWith("GhostPlayer_") ) {
-                            checkGameOver = true;
+                            checkGameOver = checkGameOver&&true;
                         } else {
-                            checkGameOver = false;
+                            checkGameOver = checkGameOver&&false;
                         }
                         
                         continue ;
                     } else {
-                        checkGameOver = false;
+                        checkGameOver = checkGameOver&&false;
                     }
     
                     
@@ -494,8 +496,6 @@ public class Move3dAdapter implements SmartDataProvider {
                 }
                 
                 if (checkGameOver) {
-                    logger.warn("worldsPrecisions void for " + s);
-                    
                     if ( !myWorld.playerGameOver(user) ) {
                         logger.warn("Game over procedure failed for " + user + " player (unknow player).");
                         // throw new SubscriptionException("Unknow player.");
