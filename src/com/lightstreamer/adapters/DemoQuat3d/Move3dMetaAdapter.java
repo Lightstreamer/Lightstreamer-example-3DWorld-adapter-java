@@ -22,6 +22,10 @@ import java.io.File;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -46,6 +50,13 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
      * Session information is needed to pass the IP to logging purpose.
      */
     private ConcurrentHashMap<String,Map<String,String>> sessions = new ConcurrentHashMap<String,Map<String,String>>();
+    
+    /**
+     * 
+     * Executor for tasks of bandwidth polls.
+     * 
+     */
+    private final static ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     
     private final ConcurrentHashMap<String, String> players = new ConcurrentHashMap<String, String>();
     private final static ConcurrentHashMap<String, PollsBandwidth> checkBandWidths = new ConcurrentHashMap<String, PollsBandwidth>();
@@ -88,7 +99,8 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     public static void killBandChecker(String itemName) {
         PollsBandwidth p = checkBandWidths.get(itemName);
         if ( p != null ) {
-            p.setEnd();
+            p.getTask().cancel(true);
+            checkBandWidths.remove(itemName);
         }
     }
     
@@ -145,7 +157,9 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
         } else if ( tables[0].getId().startsWith(BAND_PREFIX) ) {
             String usr = tables[0].getId().substring(BAND_PREFIX.length());
             PollsBandwidth p = new PollsBandwidth(sessionID, usr, this.jmxPort);
-            p.start();
+            ScheduledFuture<?> tsk = executor.scheduleAtFixedRate(p,10,2000,TimeUnit.MILLISECONDS);
+            
+            p.setTask(tsk);
             checkBandWidths.put(tables[0].getId(), p);
         } else if ( tables[0].getId().startsWith("ServerSide") ) {
             if (curSrvSideUsers < maxSrvSideUsers) {
@@ -159,10 +173,11 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     }
     
     public static void terminateUser(String usr) {
-        PollsBandwidth p =checkBandWidths.get(BAND_PREFIX + usr);
+        PollsBandwidth p = checkBandWidths.get(BAND_PREFIX + usr);
         if (p != null ) {
-            p.setEnd();
+            p.getTask().cancel(true);
             p.forceMeOut();
+            checkBandWidths.remove(BAND_PREFIX + usr);
         } else {
             logger.warn("terminateUser failed for user: " + usr);
         }

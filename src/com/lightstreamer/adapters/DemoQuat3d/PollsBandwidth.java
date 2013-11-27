@@ -20,12 +20,13 @@ package com.lightstreamer.adapters.DemoQuat3d;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.concurrent.ScheduledFuture;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
-public class PollsBandwidth extends Thread {
+public class PollsBandwidth implements Runnable {
 
     private boolean end = false;
     
@@ -35,6 +36,15 @@ public class PollsBandwidth extends Thread {
     private MBeanServer server;  
     private ObjectName sessionMBeanName = null;
     private String user = "";
+    private ScheduledFuture<?> task = null;
+
+    public ScheduledFuture<?> getTask() {
+        return task;
+    }
+
+    public void setTask(ScheduledFuture<?> task) {
+        this.task = task;
+    }
     
     public PollsBandwidth(String sessionId, String user, int port) {
         try {
@@ -74,10 +84,6 @@ public class PollsBandwidth extends Thread {
         }
     }
     
-    public void setEnd() {
-        end = true;
-    }
-    
     public void forceMeOut() {
         try {  
             Object ret = server.invoke(sessionMBeanName, "destroySession", null, null);  
@@ -98,19 +104,12 @@ public class PollsBandwidth extends Thread {
         
     @Override
     public void run () {
-        while (!end) {
-            try {
-                Thread.sleep(2000);
-            
-                //Double d = (Double)mbsc.getAttribute(mbeanName, "CurrentBandwidthKbps");
-                Double d = (Double)server.getAttribute(sessionMBeanName, "CurrentBandwidthKbps");
-                Move3dAdapter.postBandwith(BAND_PREFIX+this.user, d);
-            } catch (InterruptedException ie) {
-                // Skip.
-            } catch (Exception e) {
-                // send update ERR.
-                // this.listener.postBandwith(BAND_PREFIX+this.user, new Double(0));
-            }
+        try {
+            Double d = (Double)server.getAttribute(sessionMBeanName, "CurrentBandwidthKbps");
+            Move3dAdapter.postBandwith(BAND_PREFIX+this.user, d);
+        } catch (Exception e) {
+            // send update ERR.
+            // this.listener.postBandwith(BAND_PREFIX+this.user, new Double(0));
         }
     }
     
