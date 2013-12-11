@@ -1,4 +1,4 @@
-# Lightstreamer 3D World Demo Adapter #
+# Lightstreamer - 3D World Demo - Java SE Adapter #
 
 This demo shows how well the real-time positions of objects in a multiplayer 3D world can be delivered over WebSockets and HTTP via Lightstreamer Server. Particular attention is paid to aspects of real-time communication and opportunities to minimize the network bandwidth utilization.
 
@@ -60,11 +60,11 @@ Build the java source files (in the src folder) into a LS_3DWorldDemo_Adapters.j
 
 ## Clients using this Adapter ##
 
-* [Lightstreamer 3D World Demo Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript)
+* [Lightstreamer - 3D World Demo - Three.js Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript)
 
 ## Related projects ##
 
-* [Lightstreamer Reusable Metadata Adapter in Java](https://github.com/Weswit/Lightstreamer-example-ReusableMetadata-adapter-java)
+* [Lightstreamer - Reusable Metadata Adapters - Java SE Adapter](https://github.com/Weswit/Lightstreamer-example-ReusableMetadata-adapter-java)
 
 # Lightstreamer Compatibility Notes #
 
