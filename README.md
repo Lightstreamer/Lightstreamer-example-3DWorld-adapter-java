@@ -1,4 +1,5 @@
 # Lightstreamer - 3D World Demo - Java Adapter #
+<!-- START DESCRIPTION 3D World Demo -->
 
 This demo shows how well the real-time positions of objects in a multiplayer 3D world can be delivered over WebSockets and HTTP via Lightstreamer Server. Particular attention is paid to aspects of real-time communication and opportunities to minimize the network bandwidth utilization.
 
@@ -26,6 +27,8 @@ The adapter receives input commands from Lightstreamer server, which forwards me
 - changing last message for the player;
 - changing world scenario for the player;
 - movement commands.
+
+<!-- END DESCRIPTION 3D World Demo -->
 
 # Build #
 
@@ -59,8 +62,11 @@ Build the java source files (in the src folder) into a LS_3DWorldDemo_Adapters.j
 * [Optimizing Multiplayer 3D Game Synchronization Over the Web](http://blog.lightstreamer.com/2013/10/optimizing-multiplayer-3d-game.html)
 
 ## Clients using this Adapter ##
+<!-- START RELATED_ENTRIES -->
 
 * [Lightstreamer - 3D World Demo - Three.js Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript)
+
+<!-- END RELATED_ENTRIES -->
 
 ## Related projects ##
 
