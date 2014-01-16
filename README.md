@@ -57,8 +57,6 @@ Build the java source files (in the src folder) into a LS_3DWorldDemo_Adapters.j
 
 # See Also #
 
-## Explanatory Article ##
-
 * [Optimizing Multiplayer 3D Game Synchronization Over the Web](http://blog.lightstreamer.com/2013/10/optimizing-multiplayer-3d-game.html)
 
 ## Clients Using This Adapter ##
