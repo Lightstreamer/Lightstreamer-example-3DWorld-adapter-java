@@ -52,7 +52,6 @@ To build the adapter follow these steps:
 * Build the java source files in the `src` folder into a `LS_3DWorldDemo_Adapters.jar` file. Here is an example for that:
 ```sh
   >javac -source 1.7 -target 1.7 -nowarn -g -classpath compile_libs/croftsoft-math.jar;compile_libs/ls-adapter-interface.jar;compile_libs/ls-generic-adapters.jar;compile_libs/log4j-1.2.15.jar -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/DemoQuat3d/Move3dAdapter.java
-  
   >jar cvf LS_3DWorldDemo_Adapters.jar -C tmp_classes com
 ```
 * Copy the just compiled `LS_3DWorldDemo_Adapters.jar` in the `adapters/3DWorldDemo/lib` folder of your Lightstreamer Server.
