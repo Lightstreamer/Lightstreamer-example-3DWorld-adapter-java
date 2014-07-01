@@ -40,7 +40,7 @@ The adapter receives input commands from Lightstreamer server, which forwards me
 * Copy the just compiled `croftsoft-math.jar` file in the `3DWorldDemo/lib` folder.
 * [Optional] Supply a specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" category in logback configuration `Lightstreamer/conf/lightstreamer_log_conf.xml`.
 * Launch Lightstreamer Server.
-* Launch a client like the the [3D World Demo - HTML (Three.js) Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript) 
+* Launch a client like the [3D World Demo - HTML (Three.js) Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript) 
 
 ## Build
 To build the adapter follow these steps:
