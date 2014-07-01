@@ -42,8 +42,7 @@ The adapter receives input commands from Lightstreamer server, which forwards me
 * Launch Lightstreamer.
 
 ## Build
-
-Before you can build the Adapter Set, some dependencies need to be solved:
+To build the adapter follow these steps:
 
 * Get the `src` folder from this project, containing the source files to be compiled.
 * Create a `compile_libs` folder.
