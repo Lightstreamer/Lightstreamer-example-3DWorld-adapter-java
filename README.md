@@ -39,7 +39,7 @@ The adapter receives input commands from Lightstreamer server, which forwards me
 * Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang and math packages.
 * Copy the just compiled `croftsoft-math.jar` file in the `3DWorldDemo/lib` folder.
 * [Optional] Supply a specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" category in logback configuration `Lightstreamer/conf/lightstreamer_log_conf.xml`.
-* Launch Lightstreamer.
+* Launch Lightstreamer Server.
 
 ## Build
 To build the adapter follow these steps:
