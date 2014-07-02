@@ -45,7 +45,7 @@ The adapter receives input commands from Lightstreamer server, which forwards me
 * Launch a client like the [3D World Demo - HTML (Three.js) Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript) 
 
 ## Build
-To build your own version of LS_3DWorldDemo_Adapters.jar, instead of using the one provided in the deploy.zip file, follow these steps:
+To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the one provided in the `deploy.zip` file, follow these steps:
 
 * Clone this project.
 * Get the `ls-adapter-interface.jar`, `ls-generic-adapters.jar`, and `log4j-1.2.15.jar` files from the [Lightstreamer distribution](http://www.lightstreamer.com/download) and copy them into the `lib` folder.
