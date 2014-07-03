@@ -12,11 +12,9 @@ There are two ways the demo can work.
 - First way: the physics engine runs on the client side, which periodically synchronizes with the authoritative server. 
 - Second way: the physics engine runs on the server side only and the positional and rotational data for all the players in a world are transmitted to all the clients. In other words, the clients are pure renderers.
 
-This project includes the implementation of the Adapter Set for Lightstreamer written in Java.
-
 ### Java Data Adapter and MetaData Adapter
 
-A Java Adapter implementing both the [SmartDataProvider](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/data/SmartDataProvider.html) interface and the [MetadataProviderAdapter](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/metadata/MetadataProviderAdapter.html) interface to inject data into Lightstreamer server with real time information about the movement of every object in the world.
+This project includes the implementation of both the [SmartDataProvider](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/data/SmartDataProvider.html) interface and the [MetadataProviderAdapter](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/metadata/MetadataProviderAdapter.html) interface to inject data into Lightstreamer server with real time information about the movement of every object in the world.
 Both translations and rotations in 3D space are calculated by the adapter and transmitted to the clients in a 7-value array: position for axis X, position for axis Y, position for axis Z, and a quaternion object for rotation information: x, y, z, Quat(X, Y, Z, W).
 Precision and format of data in output are configurable by each user among these choices: 
 - binary Base64 encoded float numbers in single precision;
