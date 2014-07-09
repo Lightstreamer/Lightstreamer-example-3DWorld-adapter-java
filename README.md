@@ -33,7 +33,7 @@ The adapter receives input commands from Lightstreamer server, which forwards me
 <!-- END DESCRIPTION lightstreamer-example-3dworld-adapter-java -->
 
 ## Install
-
+If you want to install a version of this demo in your local Lightstreamer serverfrom the [Install](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java#install) section above, follow these steps.
 * Download *Lightstreamer Server Vivace* (make sure you use Vivace edition, otherwise you will see a limit on the event rate; Lightstreamer Server comes with a free non-expiring demo license for 20 connected users) from [Lightstreamer Download page](http://www.lightstreamer.com/download.htm), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
 * Get the `deploy.zip` file of the [latest release](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java/releases) and unzip it.
 * Copy the just unzipped `3DWorldDemo` folder into the `adapters` folder of your Lightstreamer Server installation.
@@ -45,7 +45,6 @@ The adapter receives input commands from Lightstreamer server, which forwards me
 
 ## Build
 To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the one provided in the `deploy.zip` file, follow these steps:
-
 * Clone this project.
 * Get the `ls-adapter-interface.jar`, `ls-generic-adapters.jar`, and `log4j-1.2.15.jar` files from the [Lightstreamer distribution](http://www.lightstreamer.com/download) and copy them into the `lib` folder.
 * Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang and math packages.
