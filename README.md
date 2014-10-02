@@ -5,7 +5,7 @@ The *3D World Demo* shows how well the real-time positions of objects in a multi
 
 This project shows the Data Adapter and Metadata Adapters for the *3D World Demo* and how they can be plugged into Lightstreamer Server.
 
-As example of a client using this adapter, you may refer to the [3D World Demo - HTML (Three.js) Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript) and view the corresponding [Live Demo](http://demos.lightstreamer.com/3DWorldDemo/)
+As an example of a client using this adapter, you may refer to the [3D World Demo - HTML (Three.js) Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript) and view the corresponding [Live Demo](http://demos.lightstreamer.com/3DWorldDemo/)
 
 ## Details
 
@@ -17,7 +17,7 @@ There are two ways the demo can work.
 
 ### Java Data Adapter and MetaData Adapter
 
-This project includes the implementation of both the [SmartDataProvider](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/data/SmartDataProvider.html) interface and the [MetadataProviderAdapter](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/metadata/MetadataProviderAdapter.html) interface to inject data into Lightstreamer server with real time information about the movement of every object in the world.
+This project includes the implementation of both the [SmartDataProvider](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/data/SmartDataProvider.html) interface and the [MetadataProviderAdapter](http://www.lightstreamer.com/docs/adapter_java_api/com/lightstreamer/interfaces/metadata/MetadataProviderAdapter.html) interface to inject data into Lightstreamer server with real-time information about the movement of every object in the world.
 Both translations and rotations in 3D space are calculated by the adapter and transmitted to the clients in a 7-value array: position for axis X, position for axis Y, position for axis Z, and a quaternion object for rotation information: x, y, z, Quat(X, Y, Z, W).
 Precision and format of data in output are configurable by each user among these choices: 
 - binary Base64 encoded float numbers in single precision;
@@ -25,19 +25,19 @@ Precision and format of data in output are configurable by each user among these
 - string with fixed decimal places (ranging from 1 to 15).
 
 The adapter receives input commands from Lightstreamer server, which forwards messages arrived from clients to the adapter in relation to:
-- changing nick name for the player;
-- changing last message for the player;
-- changing world scenario for the player;
-- movement commands.
+- Changing nickname for the player;
+- Changing last message for the player;
+- Changing world scenario for the player;
+- Movement commands.
 
 <!-- END DESCRIPTION lightstreamer-example-3dworld-adapter-java -->
 
 ## Install
-If you want to install a version of this demo in your local Lightstreamer server, follow these steps.
-* Download *Lightstreamer Server Vivace* (make sure you use Vivace edition, otherwise you will see a limit on the event rate; Lightstreamer Server comes with a free non-expiring demo license for 20 connected users) from [Lightstreamer Download page](http://www.lightstreamer.com/download.htm), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
+If you want to install a version of this demo in your local Lightstreamer server, follow these steps:
+* Download *Lightstreamer Server Vivace* (make sure you use Vivace edition, otherwise, you will see a limit on the event rate; Lightstreamer Server comes with a free non-expiring demo license for 20 connected users) from [Lightstreamer Download page](http://www.lightstreamer.com/download.htm), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
 * Get the `deploy.zip` file of the [latest release](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java/releases) and unzip it.
 * Copy the just unzipped `3DWorldDemo` folder into the `adapters` folder of your Lightstreamer Server installation.
-* Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang and math packages.
+* Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang, and math packages.
 * Copy the just compiled `croftsoft-math.jar` file in the `3DWorldDemo/lib` folder.
 * [Optional] Supply a specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" category in logback configuration `Lightstreamer/conf/lightstreamer_log_conf.xml`.
 * Launch Lightstreamer Server.
@@ -47,7 +47,7 @@ If you want to install a version of this demo in your local Lightstreamer server
 To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the one provided in the `deploy.zip` file from the [Install](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java#install) section above, follow these steps:
 * Clone this project.
 * Get the `ls-adapter-interface.jar`, `ls-generic-adapters.jar`, and `log4j-1.2.15.jar` files from the [Lightstreamer distribution](http://www.lightstreamer.com/download) and copy them into the `lib` folder.
-* Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang and math packages.
+* Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang, and math packages.
 * Put the just compiled `croftsoft-math.jar` file in the `lib` folder.
 * Build the java source files in the `src` folder into a `LS_3DWorldDemo_Adapters.jar` file. Here is an example for that:
 ```sh
