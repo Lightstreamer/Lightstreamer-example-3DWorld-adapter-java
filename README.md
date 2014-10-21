@@ -46,12 +46,12 @@ If you want to install a version of this demo in your local Lightstreamer server
 ## Build
 To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the one provided in the `deploy.zip` file from the [Install](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java#install) section above, follow these steps:
 * Clone this project.
-* Get the `ls-adapter-interface.jar`, `ls-generic-adapters.jar`, and `log4j-1.2.15.jar` files from the [Lightstreamer distribution](http://www.lightstreamer.com/download) and copy them into the `lib` folder.
+* Get the `ls-adapter-interface.jar` and `log4j-1.2.15.jar` files from the [Lightstreamer distribution](http://www.lightstreamer.com/download) and copy them into the `lib` folder.
 * Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang, and math packages.
 * Put the just compiled `croftsoft-math.jar` file in the `lib` folder.
 * Build the java source files in the `src` folder into a `LS_3DWorldDemo_Adapters.jar` file. Here is an example for that:
 ```sh
-  >javac -source 1.7 -target 1.7 -nowarn -g -classpath lib/croftsoft-math.jar;lib/ls-adapter-interface.jar;lib/ls-generic-adapters.jar;lib/log4j-1.2.15.jar -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/DemoQuat3d/Move3dAdapter.java
+  >javac -source 1.7 -target 1.7 -nowarn -g -classpath lib/croftsoft-math.jar;lib/ls-adapter-interface.jar;lib/log4j-1.2.15.jar -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/DemoQuat3d/Move3dAdapter.java
   >jar cvf LS_3DWorldDemo_Adapters.jar -C tmp_classes com
 ```
 * Copy the just compiled `LS_3DWorldDemo_Adapters.jar` in the `adapters/3DWorldDemo/lib` folder of your Lightstreamer Server installation.
@@ -73,4 +73,5 @@ To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the
 
 ## Lightstreamer Compatibility Notes
 
-- Compatible with Lightstreamer SDK for Java Adapters version 5.1.x
+* Compatible with Lightstreamer SDK for Java In-Process Adapters since 6.0
+- For a version of this example compatible with Lightstreamer SDK for Java Adapters version 5.1, please refer to [this tag](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java/tree/for_Lightstreamer_5.1).
