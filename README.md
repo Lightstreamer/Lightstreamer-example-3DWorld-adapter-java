@@ -32,6 +32,74 @@ The adapter receives input commands from Lightstreamer server, which forwards me
 
 <!-- END DESCRIPTION lightstreamer-example-3dworld-adapter-java -->
 
+
+#### The Adapter Set Configuration
+This Adapter Set Name is configured and will be referenced by the clients as `DEMOMOVE3D`.
+
+The `adapters.xml` file for this demo should look like:
+```xml   
+<?xml version="1.0"?>
+<adapters_conf id="DEMOMOVE3D">
+    <metadata_provider>
+        <adapter_class>com.lightstreamer.adapters.DemoQuat3d.Move3dMetaAdapter</adapter_class>
+        
+        <!--
+          TCP port on which Sun/Oracle's JMXMP connector will be
+          listening.
+        -->
+        <param name="jmxPort">9999</param>
+        
+        <!--
+          Max number of players in server-side modality.
+        -->
+        <param name="Max_Srv_Players">10</param>
+    </metadata_provider>
+    
+    <data_provider>
+        <adapter_class>com.lightstreamer.adapters.DemoQuat3d.Move3dAdapter</adapter_class>
+        
+        <!--
+          Frame rate for physics calculations. In milliseconds.
+        -->
+        <param name="frameRate">10</param>
+        
+        <!--
+          Default option for number of decimals.
+        -->
+        <param name="precision">8</param>
+        
+        <!--
+          Max interval of time without send any commands after which
+          the player is forcibly disconnected.
+        -->
+        <param name="Max_Inactivity">60000</param>
+        
+        <!--
+          Number of Ghost players in the <Default> world. Ghosts are automatically
+          killed when the number of real players is approaching the overcrowded 
+          value and regenerate when this number decreases.
+        -->
+        <param name="Ghost_Players">7</param>
+        
+        <!--
+          Max number of total players in the all the worlds.
+        -->
+        <param name="Max_Players">100</param>
+        
+        <!--
+          Max number of players in the same world.
+        -->
+        <param name="overcrowded">10</param>
+    </data_provider>
+</adapters_conf>
+```
+
+<i>NOTE: not all configuration options of an Adapter Set are exposed by the file suggested above. 
+You can easily expand your configurations using the generic template, `DOCS-SDKs/sdk_adapter_java_inprocess/doc/adapter_conf_template/adapters.xml`, as a reference.</i><br>
+<br>
+Please refer [here](http://www.lightstreamer.com/docs/base/General%20Concepts.pdf) for more details about Lightstreamer Adapters.
+
+
 ## Install
 If you want to install a version of this demo in your local Lightstreamer server, follow these steps:
 * Download *Lightstreamer Server Vivace* (make sure you use Vivace edition, otherwise, you will see a limit on the event rate; Lightstreamer Server comes with a free non-expiring demo license for 20 connected users) from [Lightstreamer Download page](http://www.lightstreamer.com/download.htm), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
