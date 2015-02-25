@@ -1,5 +1,13 @@
 <?xml version="1.0"?>
 <adapters_conf id="DEMOMOVE3D">
+
+    <!--
+      Not all configuration options of an Adapter Set are exposed by this file. 
+      You can easily expand your configurations using the generic template, 
+      `DOCS-SDKs/sdk_adapter_java_inprocess/doc/adapter_conf_template/adapters.xml`,
+      as a reference.
+    -->
+    
     <metadata_provider>
         <adapter_class>com.lightstreamer.adapters.DemoQuat3d.Move3dMetaAdapter</adapter_class>
         
