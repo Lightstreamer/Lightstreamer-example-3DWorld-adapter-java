@@ -28,10 +28,12 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 
 import com.lightstreamer.adapters.metadata.LiteralBasedProvider;
 import com.lightstreamer.interfaces.metadata.CreditsException;
 import com.lightstreamer.interfaces.metadata.NotificationException;
+import com.lightstreamer.interfaces.metadata.MetadataProviderException;
 import com.lightstreamer.interfaces.metadata.TableInfo;
 
 public class Move3dMetaAdapter extends LiteralBasedProvider {
@@ -69,7 +71,19 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     
     
     @Override
-    public void init(Map params, File configDir) {
+    public void init(Map params, File configDir) throws MetadataProviderException {
+        super.init(params,configDir);
+        
+        String logConfig = (String) params.get("log_config");
+        if (logConfig != null) {
+            File logConfigFile = new File(configDir, logConfig);
+            String logRefresh = (String) params.get("log_config_refresh_seconds");
+            if (logRefresh != null) {
+                DOMConfigurator.configureAndWatch(logConfigFile.getAbsolutePath(), Integer.parseInt(logRefresh) * 1000);
+            } else {
+                DOMConfigurator.configure(logConfigFile.getAbsolutePath());
+            }
+        }
         
         logger = Logger.getLogger("LS_demos_Logger.Move3dDemo");
         

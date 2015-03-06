@@ -40,9 +40,25 @@ The `adapters.xml` file for this demo should look like:
 ```xml   
 <?xml version="1.0"?>
 <adapters_conf id="DEMOMOVE3D">
+
+    <!--
+      Not all configuration options of an Adapter Set are exposed by this file. 
+      You can easily expand your configurations using the generic template, 
+      `DOCS-SDKs/sdk_adapter_java_inprocess/doc/adapter_conf_template/adapters.xml`,
+      as a reference.
+    -->
+    
+    <metadata_adapter_initialised_first>Y</metadata_adapter_initialised_first>
+
     <metadata_provider>
         <adapter_class>com.lightstreamer.adapters.DemoQuat3d.Move3dMetaAdapter</adapter_class>
         
+        <!-- Optional for PortfolioMetadataAdapter.
+             Configuration file for the Adapter's own logging.
+             Logging is managed through log4j. -->
+        <param name="log_config">adapters_log_conf.xml</param>
+        <param name="log_config_refresh_seconds">10</param>
+
         <!--
           TCP port on which Sun/Oracle's JMXMP connector will be
           listening.
@@ -53,11 +69,12 @@ The `adapters.xml` file for this demo should look like:
           Max number of players in server-side modality.
         -->
         <param name="Max_Srv_Players">10</param>
+		  
     </metadata_provider>
     
     <data_provider>
         <adapter_class>com.lightstreamer.adapters.DemoQuat3d.Move3dAdapter</adapter_class>
-        
+  
         <!--
           Frame rate for physics calculations. In milliseconds.
         -->
@@ -107,7 +124,7 @@ If you want to install a version of this demo in your local Lightstreamer server
 * Copy the just unzipped `3DWorldDemo` folder into the `adapters` folder of your Lightstreamer Server installation.
 * Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang, and math packages.
 * Copy the just compiled `croftsoft-math.jar` file in the `3DWorldDemo/lib` folder.
-* [Optional] Supply a specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" category in logback configuration `Lightstreamer/conf/lightstreamer_log_conf.xml`.
+* [Optional] Customize the specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" categories in log4j configuration file `3DWorldDemo/adapters_log_conf.xml`.
 * Launch Lightstreamer Server.
 * Launch a client like the [3D World Demo - HTML (Three.js) Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript) 
 
