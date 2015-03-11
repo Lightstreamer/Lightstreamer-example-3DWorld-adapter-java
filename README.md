@@ -53,8 +53,7 @@ The `adapters.xml` file for this demo should look like:
     <metadata_provider>
         <adapter_class>com.lightstreamer.adapters.DemoQuat3d.Move3dMetaAdapter</adapter_class>
         
-        <!-- Optional for PortfolioMetadataAdapter.
-             Configuration file for the Adapter's own logging.
+        <!-- Optional configuration file for the Adapter's own logging.
              Logging is managed through log4j. -->
         <param name="log_config">adapters_log_conf.xml</param>
         <param name="log_config_refresh_seconds">10</param>
