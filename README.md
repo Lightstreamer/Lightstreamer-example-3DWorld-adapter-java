@@ -5,7 +5,7 @@ The *3D World Demo* shows how well the real-time positions of objects in a multi
 
 This project shows the Data Adapter and Metadata Adapters for the *3D World Demo* and how they can be plugged into Lightstreamer Server.
 
-As an example of a client using this adapter, you may refer to the [3D World Demo - HTML (Three.js) Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript) and view the corresponding [Live Demo](http://demos.lightstreamer.com/3DWorldDemo/)
+As an example of a client using this adapter, you may refer to the [3D World Demo - HTML (Three.js) Client](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-client-javascript) and view the corresponding [Live Demo](http://demos.lightstreamer.com/3DWorldDemo/)
 
 ## Details
 
@@ -119,16 +119,16 @@ Please refer [here](http://www.lightstreamer.com/docs/base/General%20Concepts.pd
 ## Install
 If you want to install a version of this demo in your local Lightstreamer server, follow these steps:
 * Download *Lightstreamer Server Vivace* (make sure you use Vivace edition, otherwise, you will see a limit on the event rate; Lightstreamer Server comes with a free non-expiring demo license for 20 connected users) from [Lightstreamer Download page](http://www.lightstreamer.com/download.htm), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
-* Get the `deploy.zip` file of the [latest release](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java/releases) and unzip it.
+* Get the `deploy.zip` file of the [latest release](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/releases) and unzip it.
 * Copy the just unzipped `3DWorldDemo` folder into the `adapters` folder of your Lightstreamer Server installation.
 * Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang, and math packages.
 * Copy the just compiled `croftsoft-math.jar` file in the `3DWorldDemo/lib` folder.
 * [Optional] Customize the specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" categories in log4j configuration file `3DWorldDemo/adapters_log_conf.xml`.
 * Launch Lightstreamer Server.
-* Launch a client like the [3D World Demo - HTML (Three.js) Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript) 
+* Launch a client like the [3D World Demo - HTML (Three.js) Client](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-client-javascript) 
 
 ## Build
-To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the one provided in the `deploy.zip` file from the [Install](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java#install) section above, follow these steps:
+To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the one provided in the `deploy.zip` file from the [Install](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java#install) section above, follow these steps:
 * Clone this project.
 * Get the `ls-adapter-interface.jar` file from the [Lightstreamer distribution](http://www.lightstreamer.com/download) and copy it into the `lib` folder.
 * Get the `log4j-1.2.17.jar` file from [Apache log4j](https://logging.apache.org/log4j/1.2/) and copy it into the `lib` folder.
@@ -148,15 +148,15 @@ To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the
 ### Clients Using This Adapter
 <!-- START RELATED_ENTRIES -->
 
-* [Lightstreamer - 3D World Demo - Three.js Client](https://github.com/Weswit/Lightstreamer-example-3DWorld-client-javascript)
+* [Lightstreamer - 3D World Demo - Three.js Client](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-client-javascript)
 
 <!-- END RELATED_ENTRIES -->
 
 ### Related Projects
 
-* [Lightstreamer - Reusable Metadata Adapters - Java Adapter](https://github.com/Weswit/Lightstreamer-example-ReusableMetadata-adapter-java)
+* [Lightstreamer - Reusable Metadata Adapters - Java Adapter](https://github.com/Lightstreamer/Lightstreamer-example-ReusableMetadata-adapter-java)
 
 ## Lightstreamer Compatibility Notes
 
 * Compatible with Lightstreamer SDK for Java In-Process Adapters since 6.0
-- For a version of this example compatible with Lightstreamer SDK for Java Adapters version 5.1, please refer to [this tag](https://github.com/Weswit/Lightstreamer-example-3DWorld-adapter-java/tree/for_Lightstreamer_5.1).
+- For a version of this example compatible with Lightstreamer SDK for Java Adapters version 5.1, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/for_Lightstreamer_5.1).
