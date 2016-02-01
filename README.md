@@ -136,8 +136,9 @@ To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the
 * Put the just compiled `croftsoft-math.jar` file in the `lib` folder.
 * Build the java source files in the `src` folder into a `LS_3DWorldDemo_Adapters.jar` file. Here is an example for that:
 ```sh
-  >javac -source 1.7 -target 1.7 -nowarn -g -classpath lib/croftsoft-math.jar;lib/ls-adapter-interface.jar;lib/log4j-1.2.17.jar -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/DemoQuat3d/Move3dAdapter.java
-  >jar cvf LS_3DWorldDemo_Adapters.jar -C tmp_classes com
+ > mkdir tmp_classes
+ > javac -source 1.7 -target 1.7 -nowarn -g -classpath lib/croftsoft-math.jar;lib/ls-adapter-interface.jar;lib/log4j-1.2.17.jar -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/DemoQuat3d/Move3dAdapter.java
+ > jar cvf LS_3DWorldDemo_Adapters.jar -C tmp_classes com
 ```
 * Copy the just compiled `LS_3DWorldDemo_Adapters.jar` in the `adapters/3DWorldDemo/lib` folder of your Lightstreamer Server installation.
 
