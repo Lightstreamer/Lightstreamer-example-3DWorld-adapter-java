@@ -47,7 +47,7 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     public static Logger tracer = null;
     
     /**
-     * Keeps the client context informations supplied by Lightstreamer on the
+     * Keeps the client context information supplied by Lightstreamer on the
      * new session notifications.
      * Session information is needed to pass the IP to logging purpose.
      */
@@ -132,7 +132,7 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     
     @Override
     public void notifySessionClose(String session) throws NotificationException {
-        //we have to remove session informations from the session HashMap
+        //we have to remove session information from the session HashMap
         sessions.remove(session);
     }
     
