@@ -27,8 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.lightstreamer.adapters.metadata.LiteralBasedProvider;
 import com.lightstreamer.interfaces.metadata.CreditsException;
@@ -74,21 +74,10 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     public void init(Map params, File configDir) throws MetadataProviderException {
         super.init(params,configDir);
         
-        String logConfig = (String) params.get("log_config");
-        if (logConfig != null) {
-            File logConfigFile = new File(configDir, logConfig);
-            String logRefresh = (String) params.get("log_config_refresh_seconds");
-            if (logRefresh != null) {
-                DOMConfigurator.configureAndWatch(logConfigFile.getAbsolutePath(), Integer.parseInt(logRefresh) * 1000);
-            } else {
-                DOMConfigurator.configure(logConfigFile.getAbsolutePath());
-            }
-        }
-        
-        logger = Logger.getLogger("LS_demos_Logger.Move3dDemo");
+        logger = LogManager.getLogger("LS_demos_Logger.Move3dDemo");
         
         try{
-            tracer = Logger.getLogger("LS_3DWorldDemo_Logger.tracer");
+            tracer = LogManager.getLogger("LS_3DWorldDemo_Logger.tracer");
         } catch (Exception e) {
             logger.warn("Error on tracer initialization.",  e);            
         }

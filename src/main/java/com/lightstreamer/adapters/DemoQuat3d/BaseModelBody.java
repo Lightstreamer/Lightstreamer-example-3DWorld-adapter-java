@@ -18,19 +18,20 @@
 
 package com.lightstreamer.adapters.DemoQuat3d;
 
-import com.croftsoft.core.lang.EnumUnknownException;
-import com.croftsoft.core.math.MathLib;
-import com.croftsoft.core.math.axis.AxisAngle;
-import com.croftsoft.core.math.axis.AxisAngleImp;
-import com.croftsoft.core.math.axis.AxisAngleMut;
+import org.apache.commons.math3.complex.Quaternion;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BaseModelBody implements IBody {
 
-    private static final double ROTATE_DELTA    = 0.5;
+    private static final double ROTATE_DELTA    = 0.005;
     private static final double TRANSLATE_DELTA = 0.002;
     private static final double WORLD_SIZE_X = 160;
     private static final double WORLD_SIZE_Y = 90;
     private static final double WORLD_SIZE_Z = 120;
+
+    public static Logger logger = LogManager.getLogger("LS_3DWorldDemo_Logger.tracer");
     
     private String nickName = "";
     private String origName = "";
@@ -42,19 +43,19 @@ public class BaseModelBody implements IBody {
     
     private double  x, y, z;                                // position         Vector3
     private double  vX, vY, vZ;                             // velocity         Vector3
-    private final AxisAngleMut  axisAngle;                  // Spin             Quaternion/Matrix3x3
+    private Quaternion  axisAngle;                          // Spin             Quaternion
     private double  deltaRotX, deltaRotY, deltaRotZ;        // angularMomentum  Vector3
 
     public BaseModelBody() {
-        this.axisAngle = new AxisAngleImp(); 
+        this.axisAngle = new Quaternion(0.0, 1.0, 1.0, 1.0); 
         this.x = (double)((Math.random() * 50) - 25);
         this.y = (double)((Math.random() * 50) - 25);
         this.z = (double)((Math.random() * 50) - 25);
     }
     
-    public BaseModelBody(final AxisAngle axisAngle, final double x, final double y, final double z) {
+    public BaseModelBody(final Quaternion axisAngle, final double x, final double y, final double z) {
         
-        this.axisAngle = new AxisAngleImp(axisAngle);
+        this.axisAngle = axisAngle;
     
         this.x = x;    
         this.y = y;
@@ -90,7 +91,7 @@ public class BaseModelBody implements IBody {
     
     
     @Override
-    public AxisAngle getAxisAngle() {
+    public Quaternion getAxisAngle() {
         return axisAngle;
     }
     
@@ -110,8 +111,8 @@ public class BaseModelBody implements IBody {
     }
 
     @Override
-    public void setAxisAngle(AxisAngle axisAngle) {
-        this.axisAngle.copy( axisAngle );
+    public void setAxisAngle(Quaternion axisAngle) {
+        this.axisAngle = axisAngle;
     }
 
     @Override
@@ -158,12 +159,11 @@ public class BaseModelBody implements IBody {
     }
     
     @Override
-    public void rotate(AxisAngle axisAngleRot) {
-        AxisAngleMut newAxisAngleMut = this.axisAngle.toQuat( ).multiply(axisAngleRot.toQuat()).toAxisAngle ( );
+    public void rotate(Quaternion axisAngleRot) {
+        // AxisAngleMut newAxisAngleMut = this.axisAngle.toQuat( ).multiply(axisAngleRot.toQuat()).toAxisAngle ( );
+    	Quaternion quat = this.axisAngle.multiply(axisAngleRot);
 
-        newAxisAngleMut.normalize ();
-
-        this.axisAngle.copy(newAxisAngleMut);
+        this.axisAngle = quat.normalize();
     }
 
     @Override
@@ -180,16 +180,16 @@ public class BaseModelBody implements IBody {
 
     @Override
     public void rotate() {
-        rotate ( new AxisAngleImp ( this.deltaRotX, 1, 0, 0 ) );
-        rotate ( new AxisAngleImp ( this.deltaRotY, 0, 1, 0 ) );
-        rotate ( new AxisAngleImp ( this.deltaRotZ, 0, 0, 1 ) );
+        rotate ( new Quaternion ( this.deltaRotX, 1, 0, 0 ) );
+        rotate ( new Quaternion ( this.deltaRotY, 0, 1, 0 ) );
+        rotate ( new Quaternion ( this.deltaRotZ, 0, 0, 1 ) );
     }
     
     @Override
     public void rotate(double factor) {
-        rotate ( new AxisAngleImp ( this.deltaRotX * factor, 1, 0, 0 ) );
-        rotate ( new AxisAngleImp ( this.deltaRotY * factor, 0, 1, 0 ) );
-        rotate ( new AxisAngleImp ( this.deltaRotZ * factor, 0, 0, 1 ) );
+        rotate ( new Quaternion ( this.deltaRotX * factor, 1, 0, 0 ) );
+        rotate ( new Quaternion ( this.deltaRotY * factor, 0, 1, 0 ) );
+        rotate ( new Quaternion ( this.deltaRotZ * factor, 0, 0, 1 ) );
     }
     
     @Override
@@ -216,15 +216,58 @@ public class BaseModelBody implements IBody {
         }
     }
     
+    private double wrapX(double pos) {
+        double bound = WORLD_SIZE_X/2;
+
+        logger.debug("wrapX in: " + pos);
+
+    	if ( pos > bound ) {
+            double tmp = (-1*bound)+(pos-bound);
+            logger.debug("wrapX out (1): " + tmp);
+            return tmp;
+        } else if ( pos < -1*bound ) {
+            double tmp = bound-(pos+bound);
+            logger.debug("wrapX out (2): " + tmp);
+            return tmp;
+        } else {
+            logger.debug("wrapX out (3): " + pos);
+            return pos;
+        }
+    	
+    }
+    
+    private double wrapY(double pos) {
+    	double bound = WORLD_SIZE_Y/2;
+
+    	if ( pos > bound ) {
+            return (-1*bound)+(pos-bound);
+        } else if ( pos < -1*bound ) {
+            return bound-(pos+bound);
+        } else {
+            return pos;
+        }
+    }
+    
+    private double wrapZ(double pos) {
+    	double bound = WORLD_SIZE_Z/2;
+
+    	if ( pos > bound ) {
+            return (-1*bound)+(pos-bound);
+        } else if ( pos < -1*bound ) {
+            return bound-(pos+bound);
+        } else {
+            return pos;
+        }
+    }
     @Override
     public void translate() {
         this.x += (double)(this.vX * TRANSLATE_DELTA);
         this.y += (double)(this.vY * TRANSLATE_DELTA);
         this.z += (double)(this.vZ * TRANSLATE_DELTA);
                 
-        this.x = MathLib.wrap(this.x, (-0.5 * WORLD_SIZE_X), WORLD_SIZE_X);
-        this.y = MathLib.wrap(this.y, (-0.5 * WORLD_SIZE_Y), WORLD_SIZE_Y);
-        this.z = MathLib.wrap(this.z, (-0.5 * WORLD_SIZE_Z), WORLD_SIZE_Z);
+        this.x = wrapX(this.x);
+        this.y = wrapY(this.y);
+        this.z = wrapZ(this.z);
         
         this.lifeSpan += 1;
     }
@@ -235,9 +278,9 @@ public class BaseModelBody implements IBody {
         this.y += (double)(this.vY * TRANSLATE_DELTA * factor);
         this.z += (double)(this.vZ * TRANSLATE_DELTA * factor);
                 
-        this.x = MathLib.wrap(this.x, (-0.5 * WORLD_SIZE_X), WORLD_SIZE_X);
-        this.y = MathLib.wrap(this.y, (-0.5 * WORLD_SIZE_Y), WORLD_SIZE_Y);
-        this.z = MathLib.wrap(this.z, (-0.5 * WORLD_SIZE_Z), WORLD_SIZE_Z);
+        this.x = wrapX(this.x);
+        this.y = wrapY(this.y);
+        this.z = wrapZ(this.z);
         
         this.lifeSpan += 1;
     }
@@ -267,7 +310,7 @@ public class BaseModelBody implements IBody {
                 break;
                 
             default:
-                throw new EnumUnknownException ( axis );
+                // throw new Exception (  );
         }
         this.lastCmdRcvd = this.lifeSpan;
     }
@@ -291,7 +334,7 @@ public class BaseModelBody implements IBody {
                 break;
                 
             default:
-                throw new EnumUnknownException ( axis );
+                // throw new EnumUnknownException ( axis );
         }
         this.lastCmdRcvd = this.lifeSpan;
     }

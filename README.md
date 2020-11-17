@@ -45,11 +45,6 @@ The `adapters.xml` file for this demo should look like:
 
     <metadata_provider>
         <adapter_class>com.lightstreamer.adapters.DemoQuat3d.Move3dMetaAdapter</adapter_class>
-        
-        <!-- Optional configuration file for the Adapter's own logging.
-             Logging is managed through log4j. -->
-        <param name="log_config">adapters_log_conf.xml</param>
-        <param name="log_config_refresh_seconds">10</param>
 
         <!--
           TCP port on which Sun/Oracle's JMXMP connector will be
@@ -108,32 +103,30 @@ You can easily expand your configurations using the generic template, see the [J
 <br>
 Please refer [here](https://lightstreamer.com/docs/ls-server/latest/General%20Concepts.pdf) for more details about Lightstreamer Adapters.
 
-
 ## Install
+
 If you want to install a version of this demo in your local Lightstreamer server, follow these steps:
-* Download *Lightstreamer Server* (Lightstreamer Server comes with a free non-expiring demo license for 20 connected users; this should be preferred to using COMMUNITY edition, otherwise you would see a limit on the event rate) from [Lightstreamer Download page](http://www.lightstreamer.com/download.htm), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
+* Download *Lightstreamer Server* (Lightstreamer Server comes with a free non-expiring demo license for 20 connected users; this should be preferred to using COMMUNITY edition, otherwise you would see a limit on the event rate) from [Lightstreamer Download page](https://lightstreamer.com/download/), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
 * Get the `deploy.zip` file of the [latest release](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/releases) and unzip it.
 * Copy the just unzipped `3DWorldDemo` folder into the `adapters` folder of your Lightstreamer Server installation.
-* Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang, and math packages.
-* Copy the just compiled `croftsoft-math.jar` file in the `3DWorldDemo/lib` folder.
-* [Optional] Customize the specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" categories in log4j configuration file `3DWorldDemo/adapters_log_conf.xml`.
+* [Optional] Customize the specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" categories in log4j configuration file `3DWorldDemo/classes/log4j2.xml`.
 * Launch Lightstreamer Server.
 * Launch a client like the [3D World Demo - HTML (Three.js) Client](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-client-javascript) 
 
 ## Build
-To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the one provided in the `deploy.zip` file from the [Install](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java#install) section above, follow these steps:
-* Clone this project.
-* Get the `ls-adapter-interface.jar` file from the [Lightstreamer distribution](http://www.lightstreamer.com/download) and copy it into the `lib` folder.
-* Get the `log4j-1.2.17.jar` file from [Apache log4j](https://logging.apache.org/log4j/1.2/) and copy it into the `lib` folder.
-* Download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and compile a `croftsoft-math.jar` version. Please make sure to include: applet, io, inlp, lang, and math packages.
-* Put the just compiled `croftsoft-math.jar` file in the `lib` folder.
-* Build the java source files in the `src` folder into a `LS_3DWorldDemo_Adapters.jar` file. Here is an example for that:
-```sh
- > mkdir tmp_classes
- > javac -source 1.7 -target 1.7 -nowarn -g -classpath lib/croftsoft-math.jar;lib/ls-adapter-interface.jar;lib/log4j-1.2.17.jar -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/DemoQuat3d/Move3dAdapter.java
- > jar cvf LS_3DWorldDemo_Adapters.jar -C tmp_classes com
+
+To build your own version of `example-3DWorld-adapter-java-0.0.1-SNAPSHOT.jar` instead of using the one provided in the `deploy.zip` file from the [Install](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java#install) section above, you have two options:
+either use [Maven](https://maven.apache.org/) (or other build tools) to take care of dependencies and building (recommended) or gather the necessary jars yourself and build it manually.
+For the sake of simplicity only the Maven case is detailed here.
+
+### Maven
+
+You can easily build and run this application using Maven through the pom.xml file located in the root folder of this project. As an alternative, you can use an alternative build tool (e.g. Gradle, Ivy, etc.) by converting the provided pom.xml file.
+
+Assuming Maven is installed and available in your path you can build the demo by running
+```sh 
+ mvn install dependency:copy-dependencies 
 ```
-* Copy the just compiled `LS_3DWorldDemo_Adapters.jar` in the `adapters/3DWorldDemo/lib` folder of your Lightstreamer Server installation.
 
 ## See Also
 
@@ -152,5 +145,6 @@ To build your own version of `LS_3DWorldDemo_Adapters.jar`, instead of using the
 
 ## Lightstreamer Compatibility Notes
 
-* Compatible with Lightstreamer SDK for Java In-Process Adapters since 6.0
+- Compatible with Lightstreamer SDK for Java In-Process Adapters since 7.3.
+- For a version of this example compatible with Lightstreamer SDK for Java Adapters version 6.0, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/pre_mvn).
 - For a version of this example compatible with Lightstreamer SDK for Java Adapters version 5.1, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/for_Lightstreamer_5.1).
