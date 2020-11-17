@@ -5,11 +5,11 @@ The *3D World Demo* shows how well the real-time positions of objects in a multi
 
 This project shows the Data Adapter and Metadata Adapters for the *3D World Demo* and how they can be plugged into Lightstreamer Server.
 
-As an example of a client using this adapter, you may refer to the [3D World Demo - HTML (Three.js) Client](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-client-javascript) and view the corresponding [Live Demo](http://demos.lightstreamer.com/3DWorldDemo/)
+As an example of a client using this adapter, you may refer to the [3D World Demo - HTML (Three.js) Client](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-client-javascript) and view the corresponding [Live Demo](https://demos.lightstreamer.com/3DWorldDemo/)
 
 ## Details
 
-__To fully understand this demo, please read the article__: [Optimizing Multiplayer 3D Game Synchronization Over the Web](http://blog.lightstreamer.com/2013/10/optimizing-multiplayer-3d-game.html)
+__To fully understand this demo, please read the article__: [Optimizing Multiplayer 3D Game Synchronization Over the Web](https://blog.lightstreamer.com/2013/10/optimizing-multiplayer-3d-game.html)
 
 There are two ways the demo can work.
 - First way: the physics engine runs on the client side, which periodically synchronizes with the authoritative server. 
@@ -130,7 +130,7 @@ Assuming Maven is installed and available in your path you can build the demo by
 
 ## See Also
 
-* [Optimizing Multiplayer 3D Game Synchronization Over the Web](http://blog.lightstreamer.com/2013/10/optimizing-multiplayer-3d-game.html)
+* [Optimizing Multiplayer 3D Game Synchronization Over the Web](https://blog.lightstreamer.com/2013/10/optimizing-multiplayer-3d-game.html)
 
 ### Clients Using This Adapter
 <!-- START RELATED_ENTRIES -->
