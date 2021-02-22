@@ -31,8 +31,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.nio.ByteBuffer;
 
-import org.apache.commons.math3.complex.Quaternion;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -430,16 +428,16 @@ public class Move3dAdapter implements SmartDataProvider {
                                 s = (new Base64Manager()).encodeBytes(toByteArray(box.getZ()),true);
                                 indx = s.indexOf("=");
                                 update.put("posZ", s.substring(0, indx));
-                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().getQ0()),true);
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getX()),true);
                                 indx = s.indexOf("=");
                                 update.put("rotX", s.substring(0, indx));
-                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().getQ1()),true);
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getY()),true);
                                 indx = s.indexOf("=");
                                 update.put("rotY", s.substring(0, indx));
-                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().getQ2()),true);
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getZ()),true);
                                 indx = s.indexOf("=");
                                 update.put("rotZ", s.substring(0, indx));
-                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().getQ3()),true);
+                                s = (new Base64Manager()).encodeBytes(toByteArray(box.getAxisAngle().toQuat().getW()),true);
                                 indx = s.indexOf("=");
                                 update.put("rotW", s.substring(0, indx));
                             } else if ( precision.equals("_bs") ) {
@@ -452,16 +450,16 @@ public class Move3dAdapter implements SmartDataProvider {
                                 s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getZ()),true);
                                 indx = s.indexOf("=");
                                 update.put("posZ", s.substring(0, indx));
-                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().getQ0()),true);
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getX()),true);
                                 indx = s.indexOf("=");
                                 update.put("rotX", s.substring(0, indx));
-                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().getQ1()),true);
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getY()),true);
                                 indx = s.indexOf("=");
                                 update.put("rotY", s.substring(0, indx));
-                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().getQ2()),true);
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getZ()),true);
                                 indx = s.indexOf("=");
                                 update.put("rotZ", s.substring(0, indx));
-                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().getQ3()),true);
+                                s = (new Base64Manager()).encodeBytes(toByteArray((float)box.getAxisAngle().toQuat().getW()),true);
                                 indx = s.indexOf("=");
                                 update.put("rotW", s.substring(0, indx));
                             } else {
@@ -474,10 +472,10 @@ public class Move3dAdapter implements SmartDataProvider {
                                 update.put("posX", roundToSend(box.getX(), px));
                                 update.put("posY", roundToSend(box.getY(), px));
                                 update.put("posZ", roundToSend(box.getZ(), px));
-                                update.put("rotX", roundToSend(box.getAxisAngle().getQ0(), px));
-                                update.put("rotY", roundToSend(box.getAxisAngle().getQ1(), px));
-                                update.put("rotZ", roundToSend(box.getAxisAngle().getQ2(), px));
-                                update.put("rotW", roundToSend(box.getAxisAngle().getQ3(), px));
+                                update.put("rotX", roundToSend(box.getAxisAngle().toQuat().getX(), px));
+                                update.put("rotY", roundToSend(box.getAxisAngle().toQuat().getY(), px));
+                                update.put("rotZ", roundToSend(box.getAxisAngle().toQuat().getZ(), px));
+                                update.put("rotW", roundToSend(box.getAxisAngle().toQuat().getW(), px));
                             }
                             
                             update.put("Vx", box.getvX()+"");

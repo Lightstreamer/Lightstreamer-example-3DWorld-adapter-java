@@ -18,18 +18,7 @@
 
 package com.lightstreamer.adapters.DemoQuat3d;
 
-import org.apache.commons.math3.complex.Quaternion;
-
-/***********************************************************************
-* Mutator interface for a JoglCamera.
-*  
-* @version
-*   $Id: JoglCameraMut.java,v 1.3 2008/05/16 20:25:34 croft Exp $
-* @since
-*   2008-05-16
-* @author
-*   <a href="http://www.CroftSoft.com/">David Wallace Croft</a>
-***********************************************************************/
+import com.croftsoft.core.math.axis.AxisAngle;
 
 public interface  IBody {
   
@@ -57,7 +46,7 @@ public interface  IBody {
         UP
     }
 
-    Quaternion  getAxisAngle ( );
+    AxisAngle  getAxisAngle ( );
     
     double  getX ( );
     
@@ -65,7 +54,7 @@ public interface  IBody {
     
     double  getZ ( );
      
-    void  setAxisAngle ( Quaternion  axisAngle );
+    void  setAxisAngle ( AxisAngle  axisAngle );
       
     void  setX ( double  x );
       
@@ -75,7 +64,7 @@ public interface  IBody {
     
     // relative mutator methods
       
-    void  rotate (Quaternion axisAngle);
+    void  rotate (AxisAngle axisAngle);
      
     void  rotate (Axis axis, double degrees);
     
