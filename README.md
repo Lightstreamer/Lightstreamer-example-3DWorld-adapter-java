@@ -115,7 +115,7 @@ If you want to install a version of this demo in your local Lightstreamer server
 
 ## Build
 
-To build your own version of `example-3DWorld-adapter-java-0.0.1-SNAPSHOT.jar` instead of using the one provided in the `deploy.zip` file from the [Install](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java#install) section above, you have two options:
+To build your own version of `example-3DWorld-adapter-java-x.y.z-SNAPSHOT.jar` instead of using the one provided in the `deploy.zip` file from the [Install](#install) section above, you have two options:
 either use [Maven](https://maven.apache.org/) (or other build tools) to take care of dependencies and building (recommended) or gather the necessary jars yourself and build it manually.
 As a precondition for compiling you need to download [croftsoft](http://sourceforge.net/projects/croftsoft/files/) library and copy the sources of applet, io, jnlp, lang and math packages into `src\main\java\` folder of this project.
 
