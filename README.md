@@ -17,7 +17,7 @@ There are two ways the demo can work.
 
 ### Java Data Adapter and MetaData Adapter
 
-This project includes the implementation of both the [SmartDataProvider](https://lightstreamer.com/api/ls-adapter-inprocess/7.4.1/com/lightstreamer/interfaces/data/SmartDataProvider.html) interface and the [MetadataProviderAdapter](https://lightstreamer.com/api/ls-adapter-inprocess/7.4.1/com/lightstreamer/interfaces/metadata/MetadataProviderAdapter.html) interface to inject data into Lightstreamer server with real-time information about the movement of every object in the world.
+This project includes the implementation of both the [SmartDataProvider](https://lightstreamer.com/api/ls-adapter-inprocess/latest/com/lightstreamer/interfaces/data/SmartDataProvider.html) interface and the [MetadataProviderAdapter](https://lightstreamer.com/api/ls-adapter-inprocess/latest/com/lightstreamer/interfaces/metadata/MetadataProviderAdapter.html) interface to inject data into Lightstreamer server with real-time information about the movement of every object in the world.
 Both translations and rotations in 3D space are calculated by the adapter and transmitted to the clients in a 7-value array: position for axis X, position for axis Y, position for axis Z, and a quaternion object for rotation information: x, y, z, Quat(X, Y, Z, W).
 Precision and format of data in output are configurable by each user among these choices: 
 - binary Base64 encoded float numbers in single precision;
@@ -99,15 +99,15 @@ The `adapters.xml` file for this demo should look like:
 ```
 
 <i>NOTE: not all configuration options of an Adapter Set are exposed by the file suggested above. 
-You can easily expand your configurations using the generic template, see the [Java In-Process Adapter Interface Project](https://github.com/Lightstreamer/Lightstreamer-lib-adapter-java-inprocess/tree/v7.4.1#configuration) for details.</i><br>
+You can easily expand your configurations using the generic template, see the [Java In-Process Adapter Interface Project](https://github.com/Lightstreamer/Lightstreamer-lib-adapter-java-inprocess#configuration) for details.</i><br>
 <br>
-Please refer [here](https://lightstreamer.com/docs/ls-server/latest_7_3/General%20Concepts.pdf) for more details about Lightstreamer Adapters.
+Please refer [here](https://lightstreamer.com/docs/ls-server/latest/General%20Concepts.pdf) for more details about Lightstreamer Adapters.
 
 ## Install
 
 If you want to install a version of this demo in your local Lightstreamer server, follow these steps:
 * Download *Lightstreamer Server* (Lightstreamer Server comes with a free non-expiring demo license for 20 connected users; this should be preferred to using COMMUNITY edition, otherwise you would see a limit on the event rate) from [Lightstreamer Download page](https://lightstreamer.com/download/), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
-* Get the `deploy.zip` file of the ["Release for Lightstreamer 7.3" release](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/releases) and unzip it.
+* Get the `deploy.zip` file of the [latest release](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/releases) and unzip it.
 * Copy the just unzipped `3DWorldDemo` folder into the `adapters` folder of your Lightstreamer Server installation.
 * [Optional] Customize the specific "LS_3DWorldDemo_Logger" and "LS_demos_Logger" categories in log4j configuration file `3DWorldDemo/classes/log4j2.xml`.
 * Launch Lightstreamer Server.
@@ -147,6 +147,7 @@ Assuming Maven is installed and available in your path you can build the demo by
 
 ## Lightstreamer Compatibility Notes
 
-- Compatible with Lightstreamer SDK for Java In-Process Adapters version 7.3 to 7.4.
+- Compatible with Lightstreamer SDK for Java In-Process Adapters since version 8.0.
+- For a version of this example compatible with Lightstreamer SDK for Java Adapters versions 7.3 to 7.4 please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/last_for_interface_7.4.x).
 - For a version of this example compatible with Lightstreamer SDK for Java Adapters version 6.0, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/pre_mvn).
 - For a version of this example compatible with Lightstreamer SDK for Java Adapters version 5.1, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/for_Lightstreamer_5.1).
