@@ -21,6 +21,8 @@ package com.lightstreamer.adapters.DemoQuat3d;
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -187,9 +189,12 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     }
     
     @Override
-    public void notifyUserMessage(String user, String sessionID, String message) {
+    public CompletionStage<String> notifyUserMessage(String user, String sessionID, String message) {
+
+        // we won't introduce blocking operations, hence we can proceed inline
+
         if (message == null) {
-            return ;
+            return null;
         }
         
         if ( message.startsWith("n|") ) {
@@ -247,6 +252,8 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
             Move3dAdapter.myWorld.dispatchMsgs(players.get(sessionID) + "|" + message);
             logger.debug("Input command from user " + players.get(sessionID) + ": " + message);
         }
+
+        return CompletableFuture.completedStage(null);
     }
     
 }
