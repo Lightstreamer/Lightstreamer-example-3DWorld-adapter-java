@@ -253,7 +253,7 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
             logger.debug("Input command from user " + players.get(sessionID) + ": " + message);
         }
 
-        return CompletableFuture.completedStage(null);
+        return CompletableFuture.completedFuture(null);
     }
     
 }
