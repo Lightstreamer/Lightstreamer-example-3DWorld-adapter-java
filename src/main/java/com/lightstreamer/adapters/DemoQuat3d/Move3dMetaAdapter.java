@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -189,7 +188,7 @@ public class Move3dMetaAdapter extends LiteralBasedProvider {
     }
     
     @Override
-    public CompletionStage<String> notifyUserMessage(String user, String sessionID, String message) {
+    public CompletableFuture<String> notifyUserMessage(String user, String sessionID, String message) {
 
         // we won't introduce blocking operations, hence we can proceed inline
 
