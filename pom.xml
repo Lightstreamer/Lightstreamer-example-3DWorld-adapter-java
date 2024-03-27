@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.lightstreamer</groupId>
-  <artifactId>example-3DWorld-adapter-java</artifactId>
+  <artifactId>example-3dworld-adapter-java</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
 
