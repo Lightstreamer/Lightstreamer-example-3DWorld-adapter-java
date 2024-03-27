@@ -1,0 +1,152 @@
+    package com.croftsoft.core.math.axis;
+
+    import com.croftsoft.core.math.matrix.Matrix3x3Mut;
+    import com.croftsoft.core.math.quat.QuatMut;
+    
+    /***********************************************************************
+    * Implementation of interface AxisAngleMut.
+    * 
+    * @version
+    *   $Id: AxisAngleImp.java,v 1.2 2008/05/09 20:39:38 croft Exp $
+    * @since
+    *   2008-05-09
+    * @author
+    *   <a href="http://www.CroftSoft.com/">David Wallace Croft</a>
+    ***********************************************************************/
+
+    public final class  AxisAngleImp
+      implements AxisAngleMut
+    ////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
+    {
+      
+    private double  degrees, x, y, z;
+    
+    ////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
+    
+    public  AxisAngleImp (
+      final double  degrees,
+      final double  x,
+      final double  y,
+      final double  z )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      this.degrees = degrees;
+      
+      this.x = x;
+      
+      this.y = y;
+      
+      this.z = z;
+    }
+    
+    public  AxisAngleImp ( final AxisAngle  axisAngle )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      copy ( axisAngle );
+    }
+    
+    public  AxisAngleImp ( )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      this ( 0, 1, 0, 0 );
+    }
+    
+    ////////////////////////////////////////////////////////////////////////
+    // accessor methods
+    ////////////////////////////////////////////////////////////////////////
+    
+    public double  getDegrees ( ) { return degrees; }
+    
+    public double  getX ( ) { return x; }
+    
+    public double  getY ( ) { return y; }
+    
+    public double  getZ ( ) { return z; }
+    
+    ////////////////////////////////////////////////////////////////////////
+    // mutator methods
+    ////////////////////////////////////////////////////////////////////////
+    
+    public void  copy ( final AxisAngle  axisAngle )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      degrees = axisAngle.getDegrees ( );
+      
+      x = axisAngle.getX ( );
+      
+      y = axisAngle.getY ( );
+      
+      z = axisAngle.getZ ( );
+    }
+    
+    public void  normalize ( )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      AxisAngleLib.normalize ( this );
+    }
+    
+    public void  setDegrees ( final double  degrees )
+                   { this.degrees = degrees; }
+    
+    public void  setX ( final double  x ) { this.x = x; }
+    
+    public void  setY ( final double  y ) { this.y = y; }
+    
+    public void  setZ ( final double  z ) { this.z = z; }
+    
+    ////////////////////////////////////////////////////////////////////////
+    // operand methods
+    ////////////////////////////////////////////////////////////////////////
+    
+    public boolean  matches ( final AxisAngle  axisAngle )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      return AxisAngleLib.matches ( this, axisAngle );
+    }
+    
+    public boolean  matches (
+      final AxisAngle    axisAngle,
+      final double  tolerance )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      return AxisAngleLib.matches ( this, axisAngle, tolerance );
+    }
+    
+    ////////////////////////////////////////////////////////////////////////
+    // calculation methods
+    ////////////////////////////////////////////////////////////////////////
+    
+    public double  magnitude ( )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      return AxisAngleLib.magnitude ( this );
+    }
+    
+    public QuatMut  toQuat ( )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      return AxisAngleLib.toQuat ( this );
+    }
+    
+    public Matrix3x3Mut  toRotationMatrix ( )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      return AxisAngleLib.toRotationMatrix ( this );
+    }
+    
+    ////////////////////////////////////////////////////////////////////////
+    // overridden Object methods
+    ////////////////////////////////////////////////////////////////////////
+    
+    @Override
+    public String  toString ( )
+    ////////////////////////////////////////////////////////////////////////
+    {
+      return AxisAngleLib.toString ( this );
+    }
+    
+    ////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
+    }

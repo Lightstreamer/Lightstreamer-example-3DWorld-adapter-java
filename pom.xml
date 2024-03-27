@@ -4,11 +4,11 @@
 
   <groupId>com.lightstreamer</groupId>
   <artifactId>example-3DWorld-adapter-java</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <name>example-3DWorld-adapter-java</name>
-  <url>http://maven.apache.org</url>
+  <url>https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java</url>
 
   <properties>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -47,9 +47,17 @@
     <repository>
       <id>Anahata</id>
       <name>Anahata Repository</name>
-      <url>https://repo.anahata.uno/artifactory/anahata-public/</url>
+      <url>http://repo.anahata.uno/artifactory/anahata-public/</url>
     </repository>
   </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Lightstreamer Apache Maven Packages</name>
+      <url>https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java</url>
+    </repository>
+  </distributionManagement>
 
   <dependencies>
     <dependency>
@@ -68,12 +76,11 @@
       <artifactId>log4j-core</artifactId>
       <version>2.17.1</version>
     </dependency>
-	<!-- https://mvnrepository.com/artifact/javax.jnlp/jnlp -->
-	<dependency>
-		<groupId>javax.jnlp</groupId>
-		<artifactId>jnlp</artifactId>
-		<version>7.0</version>
-	</dependency>
+    <dependency>
+      <groupId>javax.jnlp</groupId>
+      <artifactId>jnlp</artifactId>
+      <version>7.0</version>
+    </dependency>
   </dependencies>
   
 </project>
