@@ -55,7 +55,7 @@
     <repository>
       <id>github</id>
       <name>GitHub Lightstreamer Apache Maven Packages</name>
-      <url>https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java</url>
+      <url>https://maven.pkg.github.com/lightstreamer/Lightstreamer-example-3DWorld-adapter-java</url>
     </repository>
   </distributionManagement>
 
@@ -82,5 +82,5 @@
       <version>7.0</version>
     </dependency>
   </dependencies>
-  
+
 </project>
