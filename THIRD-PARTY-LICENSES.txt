@@ -1,4 +1,4 @@
-The code under src/main/java/com/softcroft includes code taken from 
+The code under src/main/java/com/croftsoft includes code taken from 
 CroftSoft Module "core" 2008-09-28 (https://sourceforge.net/projects/croftsoft/),
 which is subject to the following licenses:
  
