@@ -21,15 +21,19 @@ package com.lightstreamer.adapters.DemoQuat3d;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.Logger;
+
 public class TheWorld extends Thread {
     
-    private static final ConcurrentHashMap<String, BaseModelBody> playersBody =
+    private final ConcurrentHashMap<String, BaseModelBody> playersBody =
             new ConcurrentHashMap<String, BaseModelBody>();
     
-    private static final ConcurrentHashMap<String, Move3dAdapter> playersListener =
+    private final ConcurrentHashMap<String, Move3dAdapter> playersListener =
             new ConcurrentHashMap<String, Move3dAdapter>();
     
     private Move3dAdapter listener = null;
+    
+    private Logger logger;
     
     private Object listMutex = new Object();
     
@@ -48,21 +52,23 @@ public class TheWorld extends Thread {
         this.factorWorld = (double)(this.frameRate / BASE_RATE);
     }
     
-    public TheWorld() {
+    public TheWorld(Logger logger) {
         super();
         
+        this.logger = logger;
         this.factorWorld = (double)(this.frameRate / BASE_RATE);
         
-        Move3dAdapter.logger.debug("World " + this.name + " created.");
+        logger.debug("World " + this.name + " created.");
     }
     
-    public TheWorld(String name) {
+    public TheWorld(String name, Logger logger) {
         super();
         this.name = name;
         
+        this.logger = logger;
         this.factorWorld = (double)(this.frameRate / BASE_RATE);
         
-        Move3dAdapter.logger.debug("World " + name + " created.");
+        logger.debug("World " + name + " created.");
     }
 
     public void dispatchMsgs(String msg) {
@@ -141,7 +147,7 @@ public class TheWorld extends Thread {
     public void updateMyMsg(String user, String newMsg) {
         BaseModelBody boxN = playersBody.get(user);
         if ( boxN != null ) {
-            Move3dAdapter.logger.info("New message for " + user + " :" + newMsg);
+            logger.info("New message for " + user + " :" + newMsg);
             if ( newMsg.length() > 50 ) { 
                 boxN.setLastMsg(newMsg.substring(0,50));
             } else {
@@ -150,7 +156,7 @@ public class TheWorld extends Thread {
             
             this.listener.sendSocial(boxN.getOrigName(), boxN);
         } else {
-            Move3dAdapter.logger.warn(user + " not found!");
+            logger.warn(user + " not found!");
         }
         
         return ;
@@ -167,7 +173,7 @@ public class TheWorld extends Thread {
             
             this.listener.sendSocial(boxN.getOrigName(), boxN);
         } else {
-            Move3dAdapter.logger.warn(user + " not found!");
+            logger.warn(user + " not found!");
         }
         
         return ;
@@ -205,7 +211,7 @@ public class TheWorld extends Thread {
                         }
                     }
                 } catch (Exception e) {
-                    Move3dAdapter.logger.warn("Unexpected error in send overall Bandwidth information.", e);
+                    logger.warn("Unexpected error in send overall Bandwidth information.", e);
                 }
             }
         

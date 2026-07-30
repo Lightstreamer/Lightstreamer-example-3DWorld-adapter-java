@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
@@ -34,61 +36,62 @@ import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.lightstreamer.interfaces.data.DataProviderException;
-import com.lightstreamer.interfaces.data.FailureException;
-import com.lightstreamer.interfaces.data.ItemEventListener;
-import com.lightstreamer.interfaces.data.SmartDataProvider;
-import com.lightstreamer.interfaces.data.SubscriptionException;
+import com.lightstreamer.adapter.common.InitException;
+import com.lightstreamer.adapter.common.Mode;
+import com.lightstreamer.adapter.data.DataAdapter;
+import com.lightstreamer.adapter.data.ItemListener;
+import com.lightstreamer.adapter.data.ItemManager;
+import com.lightstreamer.adapter.data.SubscriptionException;
 
-public class Move3dAdapter implements SmartDataProvider {
+public class Move3dAdapter implements DataAdapter {
 
-    private static String CUSTOM_WORLD = "Custom_list";
-    private static String BAND_PREFIX = "My_Band_";
-    private static String LOGON_CUSTOM_PREFIX = "c_logon_";
-    private static String DEFAULT_WORLD = "Default";
-    private static String STATISTICS = "Statistics";
+    private static final String CUSTOM_WORLD = "Custom_list";
+    private static final String BAND_PREFIX = "My_Band_";
+    private static final String LOGON_CUSTOM_PREFIX = "c_logon_";
+    private static final String DEFAULT_WORLD = "Default";
+    private static final String STATISTICS = "Statistics";
     
-    private static int MAX_INACTIVITY = 30000;
-    private static int MAX_PLAYERS = 20;
-    private static int TOTAL_MAX_PLAYERS = 50; 
-    private static int GHOST_PLAYERS = 0;
+    private int MAX_INACTIVITY = 30000;
+    private int MAX_PLAYERS = 20;
+    private int TOTAL_MAX_PLAYERS = 50; 
+    private int GHOST_PLAYERS = 0;
     
     private boolean goStats = false;
     
-    public static Logger logger;
+    public Logger logger;
     
     /**
      * Private logger; a specific "LS_3DWorldDemo_Logger" category
      * should be supplied by logback configuration.
      */
-    public static Logger tracer = null;
-    
-    private Object listHandle;
+    public Logger tracer = null;
     
     /**
-     * The listener of updates set by Lightstreamer Kernel.
+     * Per-item listeners set by Lightstreamer Kernel.
      */
-    private static ItemEventListener listener = null;
+    private final ConcurrentHashMap<String, ItemListener> itemListeners = new ConcurrentHashMap<>();
     
     /**
      * Used to enqueue the calls to the listener.
      */
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     
-    private static final ConcurrentHashMap<String, ArrayList<String>> worldsPrecisions =
+    private final ConcurrentHashMap<String, ArrayList<String>> worldsPrecisions =
             new ConcurrentHashMap<String, ArrayList<String>>();
     
-    private static final ConcurrentHashMap<String, ArrayList<String>> customWorlds =
+    private final ConcurrentHashMap<String, ArrayList<String>> customWorlds =
             new ConcurrentHashMap<String, ArrayList<String>>();
     
-    private static final ConcurrentHashMap<String, String> userWorldMap =
+    private final ConcurrentHashMap<String, String> userWorldMap =
             new ConcurrentHashMap<String, String>();
     
-    private static final ConcurrentSkipListSet<String> subscribed = new  ConcurrentSkipListSet<String>();
+    private final ConcurrentSkipListSet<String> subscribed = new ConcurrentSkipListSet<String>();
     
-    private static WorldsStatistics stats = null;
+    private WorldsStatistics stats = null;
     
-    public static TheWorld myWorld = null;
+    private volatile Move3dMetaAdapter metaAdapter;
+    
+    public TheWorld myWorld = null;
     
     private String roundToSend(double value, String precision) {
         String tmp = ""+value;
@@ -96,7 +99,7 @@ public class Move3dAdapter implements SmartDataProvider {
         int cut = tmp.length() - tmp.indexOf(".") - 1;
         int pre;
         try {
-            pre = new Integer(precision).intValue();
+            pre = Integer.parseInt(precision);
         } catch (NumberFormatException  nfe) {
             logger.warn("Precision requested invalid (" + precision +") 8 assumed.");
             pre = 8;
@@ -109,7 +112,7 @@ public class Move3dAdapter implements SmartDataProvider {
         return tmp;
     }
 
-    private static String roundToSend(double value, int pre) {
+    private String roundToSend(double value, int pre) {
         String tmp = ""+value;
 
         int cut = tmp.length() - tmp.indexOf(".") - 1;
@@ -136,14 +139,14 @@ public class Move3dAdapter implements SmartDataProvider {
         return ByteBuffer.wrap(bytes).getDouble();
     }
     
-    private static boolean killGhosts( Iterator<String> playersList, String world) {
+    private boolean killGhosts( Iterator<String> playersList, String world) {
         String player = "";
         
         while ( playersList.hasNext() ) {
             player = playersList.next();
             if ( player.startsWith("GhostPlayer_") ) {
                 playersList.remove();
-                updateList("DELETE", player, world, CUSTOM_WORLD);
+                updateList(ItemListener.DELETE_COMMAND, player, world, CUSTOM_WORLD);
                 
                 return true;
             }
@@ -194,7 +197,7 @@ public class Move3dAdapter implements SmartDataProvider {
         return ghost.getOrigName();
     }
     
-    public static boolean worldOvercrwoded(String world) {
+    public boolean worldOvercrwoded(String world) {
         String parser = world.substring(LOGON_CUSTOM_PREFIX.length());
         String pieces[] = parser.split("_");
         
@@ -220,7 +223,7 @@ public class Move3dAdapter implements SmartDataProvider {
         return false;
     }
     
-    public static boolean tooManyUsers() {
+    public boolean tooManyUsers() {
         ArrayList<String> playersList = null;
         int sum = 0;
         
@@ -261,18 +264,22 @@ public class Move3dAdapter implements SmartDataProvider {
         if (tracer != null) {
             tracer.debug("Statistics - Total players in the demo: " + sum + ".");
         }
-        if ( listener != null && goStats) {
-            HashMap<String, String> update = new HashMap<String, String>();
-            
-            update.put("total_players", sum+"");
-            listener.update(STATISTICS, update, false);
+        if (goStats) {
+            ItemListener l = itemListeners.get(STATISTICS);
+            if (l != null) {
+                HashMap<String, String> update = new HashMap<String, String>();
+                update.put("total_players", sum+"");
+                l.update(update);
+            }
         }
-        
-        return ;
     }
 
+    public void setMetaAdapter(Move3dMetaAdapter metaAdapter) {
+        this.metaAdapter = metaAdapter;
+    }
+    
     public void postOverallBandwidth() {
-        double totBandwidth = Move3dMetaAdapter.getTotalBandwidthOut();
+        double totBandwidth = metaAdapter != null ? metaAdapter.getTotalBandwidthOut() : 0.0;
         
         if ( tracer != null ) {
             tracer.debug("Statistics - Total bandwidth for the demo: " + totBandwidth + ".");
@@ -281,24 +288,29 @@ public class Move3dAdapter implements SmartDataProvider {
         // update statistics.
         stats.feedBandwidth(totBandwidth);
         
-        if ( listener != null && goStats) {
-            HashMap<String, String> update = new HashMap<String, String>();
-            
-            update.put("total_bandwidth", roundToSend(totBandwidth, 2));
-            listener.update(STATISTICS, update, false);
+        if (goStats) {
+            ItemListener l = itemListeners.get(STATISTICS);
+            if (l != null) {
+                HashMap<String, String> update = new HashMap<String, String>();
+                update.put("total_bandwidth", roundToSend(totBandwidth, 2));
+                l.update(update);
+            }
         }
         
         return ;
     }
     
-    public static void postBandwith(String itemName, Double d) {
+    public void postBandwith(String itemName, Double d) {
         final HashMap<String, String> update = new HashMap<String, String>();
         update.put("currentBandwidth", roundToSend(d, 2));
         if ( tracer != null ) {
             tracer.debug("Update current bandwidth for user " + itemName + ": " + d);
         }
         
-        listener.update(itemName,update,false);
+        ItemListener l = itemListeners.get(itemName);
+        if (l != null) {
+            l.update(update);
+        }
     }
     
     public void flushStatistics() {
@@ -315,46 +327,63 @@ public class Move3dAdapter implements SmartDataProvider {
     }
     
     public void sendSocial(String user, BaseModelBody box) {
-        String s = null;
-        String precision;
-        String userWorld = null;
-        
-        synchronized (myWorld) {
+        //If we have a listener create a new Runnable to be used as a task to pass the
+        //new update to the listener
 
-            Enumeration<String> e = customWorlds.keys();
-            while ( e.hasMoreElements()) {
-                Iterator<String> i = null;
-                
-                s = e.nextElement();
-                if ( (customWorlds.get(s)).contains(user) ) {
-                    userWorld = s;
-                    ArrayList <String> aL = worldsPrecisions.get(s);
-                    if (aL != null) {
-                        i = aL.iterator();
+        if ( itemListeners.isEmpty() ) {
+            return ;
+        }
+
+        Runnable updateTask = new Runnable() {
+            @Override
+            public void run() {
+                String s = null;
+                String precision;
+                String userWorld = null;
+
+                synchronized (myWorld) {
+
+                    Enumeration<String> e = customWorlds.keys();
+                    while ( e.hasMoreElements()) {
+                        Iterator<String> i = null;
+
+                        s = e.nextElement();
+                        if ( (customWorlds.get(s)).contains(user) ) {
+                            userWorld = s;
+                            ArrayList <String> aL = worldsPrecisions.get(s);
+                            if (aL != null) {
+                                i = aL.iterator();
+                            }
+                        }
+
+                        if ( i == null ) {
+                            continue;
+                        }
+
+                        while (i.hasNext()) {
+                            HashMap<String, String> update = new HashMap<String, String>();
+                            precision = i.next();
+
+                            update.put(ItemListener.KEY_FIELD, user+precision);
+                            update.put(ItemListener.COMMAND_FIELD, ItemListener.UPDATE_COMMAND);
+                            update.put("nick", box.getNickName());
+                            update.put("msg", box.getLastMsg());
+
+                            logger.info("Update for item " + "Custom_list_"+userWorld+precision + ", nick: " + box.getNickName());
+                            String listItemName = "Custom_list_"+userWorld+precision;
+                            ItemListener l = itemListeners.get(listItemName);
+                            if (l != null) {
+                                l.update(update);
+                            }
+                        }
                     }
-                } 
-        
-                if ( i == null ) {
-                    continue ;                    
-                }
-            
-                while (i.hasNext()) {
-                    HashMap<String, String> update = new HashMap<String, String>();
-                    precision = i.next();
-            
-                    update.put("key", user+precision);
-                    update.put("command", "UPDATE");
-                    update.put("nick", box.getNickName());
-                    update.put("msg", box.getLastMsg());
-                
-                    logger.info("Update for item " + "Custom_list_"+userWorld+precision + ", nick: " + box.getNickName());
-                    listener.update("Custom_list_"+userWorld+precision,update,false);
+
                 }
             }
-            
-        }
-                
-        return ;
+        };
+
+        //We add the task on the executor to pass to the listener the actual status
+        executor.execute(updateTask);
     }
     
     public void sendUpdates(String user, BaseModelBody box) {
@@ -401,7 +430,9 @@ public class Move3dAdapter implements SmartDataProvider {
     
                                     logger.info(user + " gamed over for inactivity.");
                                 
-                                    Move3dMetaAdapter.terminateUser(user);
+                                    if (metaAdapter != null) {
+                                        metaAdapter.terminateUser(user);
+                                    }
                                     
                                     if ( !myWorld.playerGameOver(user) ) {
                                         logger.warn("Game over procedure failed for " + user + " player (unknow player).");
@@ -465,7 +496,7 @@ public class Move3dAdapter implements SmartDataProvider {
                             } else {
                                 int px = 8;
                                 try {
-                                    px = new Integer(precision.substring(2)).intValue();
+                                    px = Integer.parseInt(precision.substring(2));
                                 } catch (NumberFormatException  nfe) {
                                     logger.warn("Precision requested invalid (" + precision +") 8 assumed.");
                                 }
@@ -489,8 +520,9 @@ public class Move3dAdapter implements SmartDataProvider {
                                 tracer.debug("Update for " + user+precision);
                             }
                                 
-                            if (listener != null) {
-                                listener.update(user+precision,update,false);
+                            ItemListener l = itemListeners.get(user+precision);
+                            if (l != null) {
+                                l.update(update);
                             }
                         }
                     }
@@ -512,11 +544,11 @@ public class Move3dAdapter implements SmartDataProvider {
         
     }    
     
-    private static void updateList(final String command, final String key, final String world, final String list) {
+    private void updateList(final String command, final String key, final String world, final String list) {
         //If we have a listener create a new Runnable to be used as a task to pass the
         //new update to the listener
         
-        if ( listener == null ) {
+        if ( itemListeners.isEmpty() ) {
             return ;
         }
         
@@ -537,14 +569,14 @@ public class Move3dAdapter implements SmartDataProvider {
                     i = listprs.iterator();
                     while (i.hasNext()) {
                         HashMap<String, String> update = new HashMap<String, String>();
-                        update.put("command", command);
+                        update.put(ItemListener.COMMAND_FIELD, command);
                         
-                        if (command.equals("ADD")) {
+                        if (command.equals(ItemListener.ADD_COMMAND)) {
                             update.put("nick", key);
                         }
                         
                         precision = i.next();
-                        update.put("key", key+precision);
+                        update.put(ItemListener.KEY_FIELD, key+precision);
                     
                         String itemName = "";
                         if ( world != null ) {
@@ -555,7 +587,10 @@ public class Move3dAdapter implements SmartDataProvider {
                             itemName = list+precision;
                         }
                         
-                        listener.update(itemName, update, false);
+                        ItemListener l = itemListeners.get(itemName);
+                        if (l != null) {
+                            l.update(update);
+                        }
                     }
                 }
             }
@@ -568,22 +603,24 @@ public class Move3dAdapter implements SmartDataProvider {
     private void addList(final String command, final String itemName, final String key, final String precision) {
         final HashMap<String, String> update = new HashMap<String, String>();
         
-        if ( listener == null ) {
+        ItemListener l = itemListeners.get(itemName);
+        if ( l == null ) {
             return ;
         }
         
-        update.put("command", command);
-        update.put("key", key+"_"+precision);
+        update.put(ItemListener.COMMAND_FIELD, command);
+        update.put(ItemListener.KEY_FIELD, key+"_"+precision);
         update.put("nick", key);
         
         //If we have a listener create a new Runnable to be used as a task to pass the
         //new update to the listener
+        final ItemListener snapshotListener = l;
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
                 logger.debug("Add list " + itemName + " " + command + " " + key);
                     
-                listener.update(itemName, update, false);
+                snapshotListener.snapshot(update, null);
             }
          };
 
@@ -591,9 +628,9 @@ public class Move3dAdapter implements SmartDataProvider {
         executor.execute(updateTask);
     }
     
-    private void sendListEOS() {
-        final Object currHandle = listHandle;
-        if (currHandle == null) {
+    private void sendListEOS(final String itemName) {
+        final ItemListener l = itemListeners.get(itemName);
+        if (l == null) {
             return;
         }
 
@@ -605,7 +642,7 @@ public class Move3dAdapter implements SmartDataProvider {
                 // call the update on the listener;
                 // in case the listener has just been detached,
                 // the listener should detect the case
-                listener.smartEndOfSnapshot(currHandle);
+                l.endOfSnapshot();
             }
         };
 
@@ -619,7 +656,7 @@ public class Move3dAdapter implements SmartDataProvider {
     }
     
     @Override
-    public void init(Map params, File configDir) throws DataProviderException {
+    public void init(Map<String, String> params, File configDir) throws InitException {
        
         try {
             logger = LogManager.getLogger("LS_demos_Logger.Move3dDemo");
@@ -633,14 +670,14 @@ public class Move3dAdapter implements SmartDataProvider {
         
         //stats = new WorldsStatistics(GHOST_PLAYERS);
         stats = new WorldsStatistics(0);
-        myWorld = new TheWorld();
+        myWorld = new TheWorld(logger);
         
         synchronized(myWorld) {
             myWorld.setListener(this);
     
             if (params.containsKey("frameRate")) {
                 logger.debug("frameRate configured: " + params.get("frameRate"));
-                myWorld.setFrameRate(new Integer((String)params.get("frameRate")).intValue());
+                myWorld.setFrameRate(Integer.parseInt((String)params.get("frameRate")));
             }
         
             if ( !myWorld.started() ) {
@@ -649,21 +686,21 @@ public class Move3dAdapter implements SmartDataProvider {
             
             if (params.containsKey("Max_Inactivity")) {
                 logger.debug("Max_Inactivity configured: " + params.get("Max_Inactivity"));
-                MAX_INACTIVITY = (new Integer((String)params.get("Max_Inactivity")).intValue());
+                MAX_INACTIVITY = Integer.parseInt((String)params.get("Max_Inactivity"));
             }
             
             if (params.containsKey("overcrowded")) {
                 logger.debug("overcrowded configured: " + params.get("overcrowded"));
-                MAX_PLAYERS = (new Integer((String)params.get("overcrowded")).intValue());
+                MAX_PLAYERS = Integer.parseInt((String)params.get("overcrowded"));
             }
             
             if (params.containsKey("Max_Players")) {
                 logger.debug("overcrowded configured: " + params.get("Max_Players"));
-                TOTAL_MAX_PLAYERS = (new Integer((String)params.get("Max_Players")).intValue());
+                TOTAL_MAX_PLAYERS = Integer.parseInt((String)params.get("Max_Players"));
             }
             
             if (params.containsKey("Ghost_Players")) {
-                GHOST_PLAYERS = new Integer((String)params.get("Ghost_Players")).intValue();
+                GHOST_PLAYERS = Integer.parseInt((String)params.get("Ghost_Players"));
             }
             ArrayList<String> aL = new ArrayList<String>();
             for (int ik = 0; ik < GHOST_PLAYERS; ik++) {
@@ -711,188 +748,219 @@ public class Move3dAdapter implements SmartDataProvider {
         
         logger.info("Move3dAdapter start!");
     }
-
+    
     @Override
-    public void setListener(ItemEventListener lstnr) {
-        if (listener == null) {
-            listener = lstnr;
-        }
+    public CompletionStage<ItemManager> getItemManager(String itemName) throws SubscriptionException {
+        return CompletableFuture.completedFuture(new Move3dItemManager(itemName));
     }
-
-    @Override
-    public void unsubscribe(String itemName) throws SubscriptionException, FailureException {
+    
+    private class Move3dItemManager implements ItemManager {
+        private final String itemName;
         
-        if (itemName.startsWith(LOGON_CUSTOM_PREFIX)) {
-            String parser = itemName.substring(LOGON_CUSTOM_PREFIX.length());
-            String pieces[] = parser.split("_");
+        Move3dItemManager(String itemName) {
+            this.itemName = itemName;
+        }
+        
+        @Override
+        public Mode getSupportedMode() {
+            if (itemName.startsWith(CUSTOM_WORLD)) {
+                return Mode.COMMAND;
+            }
+            if (itemName.startsWith(LOGON_CUSTOM_PREFIX)) {
+                return Mode.DISTINCT;
+            }
+            if (itemName.startsWith("ServerSide")) {
+                return Mode.DISTINCT;
+            }
+            return Mode.MERGE;
+        }
+        
+        @Override
+        public Integer getDistinctSnapshotLength() {
+            if (itemName.startsWith(LOGON_CUSTOM_PREFIX)) {
+                return 30;
+            }
+            return null;
+        }
+        
+        @Override
+        public CompletionStage<Void> subscribe(ItemListener listener) throws SubscriptionException {
+            itemListeners.put(itemName, listener);
             
-            logger.debug("Logout for custom world " + pieces[0] + " user: " + pieces[1] + ".");
+            if (itemName.startsWith(CUSTOM_WORLD)) {
+                synchronized (myWorld) {
+                    String parser = itemName.substring(CUSTOM_WORLD.length());
+                    String pieces[] = parser.split("_");
+                    
+                    if (pieces.length > 2) {
+                        logger.info("Subscribe request for " + itemName + ". Precision: " + pieces[2] + ", world name: " + pieces[1]);
+                        if ( customWorlds.containsKey(pieces[1]) ) {
+                            // Estraggo la lista dei players di questo mondo.
+                            //TheWorld w = customWorlds.get(pieces[1]);
+                            ArrayList<String> aL = customWorlds.get(pieces[1]);
+                            
+                            ListIterator<String> keys = aL.listIterator();
+        
+                            while(keys.hasNext()) {
+                                String user = keys.next();
+                                addList(ItemListener.ADD_COMMAND, itemName, user, pieces[2]);
+                            }
+                            sendListEOS(itemName);
+                            
+                        } else {
+                            logger.debug("Added custom world " + pieces[1]);
+                            //customWorlds.put(pieces[1], new TheWorld(pieces[1])); 
+                            ArrayList<String> aL = new ArrayList<String>();
+                            customWorlds.put(pieces[1], aL);
+                        }
+                        
+                        if (!worldsPrecisions.containsKey(pieces[1])) {
+                            ArrayList<String> aW = new ArrayList<String>();
+                            aW.add("_"+pieces[2]);
+                            worldsPrecisions.put(pieces[1], aW);
+                            
+                            logger.debug("worldPrecisions !contains. Add " + pieces[2]);
+                        } else {
+                            ArrayList<String> aW = worldsPrecisions.get(pieces[1]);
+                            aW.add("_"+pieces[2]);
+                            logger.debug("worldPrecisions contains. Add " + pieces[2]);
+                        }                     
+                    } else {
+                        throw new SubscriptionException(CUSTOM_WORLD + " malformed.");
+                    }
+                }
+            } else if (itemName.startsWith(LOGON_CUSTOM_PREFIX)) {
+                logger.debug("ItemName: " + itemName);
+                    
+                String parser = itemName.substring(LOGON_CUSTOM_PREFIX.length());
+                String pieces[] = parser.split("_");
+                    
+                logger.info("Logon for custom world " + pieces[0] + " user: " + pieces[1]);
+                synchronized (myWorld) {    
+                    if (pieces.length > 1) {
+                        if ( customWorlds.containsKey(pieces[0]) ) {
+                            ArrayList<String> playersList = customWorlds.get(pieces[0]);
+                            if ( playersList.size() < 20 ) {
+                                playersList.add(pieces[1]);
+                            } else {
+                                // Max entry list for world. Should never go here, checked in metadata.
+                                logger.warn("Custom world " + pieces[0] + " is overcrowded; subscription rejected.");
+                                
+                                throw new SubscriptionException("This world is overcrowded, please migrate elsewhere.");
+                            }
+                        } else {
+                            //customWorlds.put(pieces[1], new TheWorld(pieces[1]));
+                            logger.debug("Added custom world " + pieces[0]);
+                            
+                            ArrayList<String> aL = new ArrayList<String>();
+                            aL.add(pieces[1]);
+                            customWorlds.put(pieces[0], aL);
+                        }
+                        userWorldMap.put(pieces[1],pieces[0]);
+                        
+                        myWorld.addPlayerBody(pieces[1], Move3dAdapter.this);
+                        
+                        updateList(ItemListener.ADD_COMMAND, pieces[1], pieces[0], CUSTOM_WORLD);
+                    }
+                    
+                    sumTotalPlayer();
+                }
+            } else if (itemName.startsWith(BAND_PREFIX)) {
+                // Nothing to do.
+            } else if (itemName.startsWith(STATISTICS)) {
+                goStats = true;
+                sumTotalPlayer();
+            } else {
+                subscribed.add(itemName);
+                logger.info(itemName + " subscribed!");
+            }
+            
+            return CompletableFuture.completedFuture(null);
+        }
+        
+        @Override
+        public boolean isSnapshotAvailable() {
+            if (itemName.startsWith(CUSTOM_WORLD)) {
+                return true;
+            }
+            return false;
+        }
+        
+        @Override
+        public CompletionStage<Void> unsubscribe() throws SubscriptionException {
+            if (itemName.startsWith(LOGON_CUSTOM_PREFIX)) {
+                String parser = itemName.substring(LOGON_CUSTOM_PREFIX.length());
+                String pieces[] = parser.split("_");
+                
+                logger.debug("Logout for custom world " + pieces[0] + " user: " + pieces[1] + ".");
 
-            synchronized (myWorld) {
-                if (pieces.length > 1) {
-                    if ( customWorlds.containsKey(pieces[0]) ) {
-                        ArrayList<String> aL = customWorlds.get(pieces[0]);
-                        
-                        aL.remove(pieces[1]);
-                        
-                        updateList("DELETE", pieces[1], pieces[0], CUSTOM_WORLD);
-                        
-                        if (pieces[0].equals(DEFAULT_WORLD)) {
-                            if ( (aL.size() < MAX_PLAYERS) && (aL.size() < (GHOST_PLAYERS)) ) {
-                                String ghost = RegenOneGhost(aL);
-                                if ( ghost != null ) {
-                                    updateList("ADD", ghost, pieces[0], CUSTOM_WORLD);
+                synchronized (myWorld) {
+                    if (pieces.length > 1) {
+                        if ( customWorlds.containsKey(pieces[0]) ) {
+                            ArrayList<String> aL = customWorlds.get(pieces[0]);
+                            
+                            aL.remove(pieces[1]);
+                            
+                            updateList(ItemListener.DELETE_COMMAND, pieces[1], pieces[0], CUSTOM_WORLD);
+                            
+                            if (pieces[0].equals(DEFAULT_WORLD)) {
+                                if ( (aL.size() < MAX_PLAYERS) && (aL.size() < (GHOST_PLAYERS)) ) {
+                                    String ghost = RegenOneGhost(aL);
+                                    if ( ghost != null ) {
+                                        updateList(ItemListener.ADD_COMMAND, ghost, pieces[0], CUSTOM_WORLD);
+                                    }
                                 }
                             }
-                        }
-                    } else {
-                        //customWorlds.put(pieces[1], new TheWorld(pieces[1]));
-                        logger.warn("Not find user in custom world " + pieces[0]);
-                    }
-                    userWorldMap.remove(pieces[1]);
-                }
-                
-                sumTotalPlayer();
-            }
-        } else if (itemName.startsWith(CUSTOM_WORLD)) {
-            synchronized (myWorld) {
-                String parser = itemName.substring(CUSTOM_WORLD.length());
-                String pieces[] = parser.split("_");
-                
-                if (pieces.length > 2) {
-                    logger.debug("Unsubscribe request for " + itemName + ". Precision: " + pieces[2] + ", world name: " + pieces[1]);
-                    
-                    if (!worldsPrecisions.containsKey(pieces[1])) {
-                        logger.debug("worldPrecisions not found this: " + pieces[2]);
-                    } else {
-                        ArrayList<String> aW = worldsPrecisions.get(pieces[1]);
-                        if ( aW != null ) {
-                            aW.remove("_"+pieces[2]);
-                            logger.debug("worldPrecisions removed this: " + pieces[2]);
-                        }
-                    }
-                        
-                } else {
-                    throw new SubscriptionException(CUSTOM_WORLD + " malformed.");
-                }
-            }
-        } else if (itemName.startsWith(BAND_PREFIX)) {
-            Move3dMetaAdapter.killBandChecker(itemName);
-        } else if (itemName.startsWith(STATISTICS)) {
-            goStats = false;
-        } else {
-            subscribed.remove(itemName);
-            logger.info(itemName + " unsubscribed!");
-        }
-    }
-        
-
-    @Override
-    public boolean isSnapshotAvailable(String itemName)  throws SubscriptionException {
-        if (itemName.startsWith(CUSTOM_WORLD)) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void subscribe(String itemName, Object handle, boolean needsIterator) throws SubscriptionException,FailureException {
-        
-         if (itemName.startsWith(CUSTOM_WORLD)) {
-            synchronized (myWorld) {
-                String parser = itemName.substring(CUSTOM_WORLD.length());
-                String pieces[] = parser.split("_");
-                
-                if (pieces.length > 2) {
-                    logger.info("Subscribe request for " + itemName + ". Precision: " + pieces[2] + ", world name: " + pieces[1]);
-                    if ( customWorlds.containsKey(pieces[1]) ) {
-                        // Estraggo la lista dei players di questo mondo.
-                        //TheWorld w = customWorlds.get(pieces[1]);
-                        ArrayList<String> aL = customWorlds.get(pieces[1]);
-                        
-                        ListIterator<String> keys = aL.listIterator();
-    
-                        while(keys.hasNext()) {
-                            String user = keys.next();
-                            this.addList("ADD", itemName, user, pieces[2]);
-                        }
-                        sendListEOS();
-                        
-                    } else {
-                        logger.debug("Added custom world " + pieces[1]);
-                        //customWorlds.put(pieces[1], new TheWorld(pieces[1])); 
-                        ArrayList<String> aL = new ArrayList<String>();
-                        customWorlds.put(pieces[1], aL);
-                    }
-                    
-                    if (!worldsPrecisions.containsKey(pieces[1])) {
-                        ArrayList<String> aW = new ArrayList<String>();
-                        aW.add("_"+pieces[2]);
-                        worldsPrecisions.put(pieces[1], aW);
-                        
-                        logger.debug("worldPrecisions !contains. Add " + pieces[2]);
-                    } else {
-                        ArrayList<String> aW = worldsPrecisions.get(pieces[1]);
-                        aW.add("_"+pieces[2]);
-                        logger.debug("worldPrecisions contains. Add " + pieces[2]);
-                    }                     
-                } else {
-                    throw new SubscriptionException(CUSTOM_WORLD + " malformed.");
-                }
-            }
-        } else if (itemName.startsWith(LOGON_CUSTOM_PREFIX)) {
-            logger.debug("ItemName: " + itemName);
-                
-            String parser = itemName.substring(LOGON_CUSTOM_PREFIX.length());
-            String pieces[] = parser.split("_");
-                
-            logger.info("Logon for custom world " + pieces[0] + " user: " + pieces[1]);
-            synchronized (myWorld) {    
-                if (pieces.length > 1) {
-                    if ( customWorlds.containsKey(pieces[0]) ) {
-                        ArrayList<String> playersList = customWorlds.get(pieces[0]);
-                        if ( playersList.size() < 20 ) {
-                            playersList.add(pieces[1]);
                         } else {
-                            // Max entry list for world. Should never go here, checked in metadata.
-                            logger.warn("Custom world " + pieces[0] + " is overcrowded; subscription rejected.");
-                            
-                            throw new SubscriptionException("This world is overcrowded, please migrate elsewhere.");
+                            //customWorlds.put(pieces[1], new TheWorld(pieces[1]));
+                            logger.warn("Not find user in custom world " + pieces[0]);
                         }
-                    } else {
-                        //customWorlds.put(pieces[1], new TheWorld(pieces[1]));
-                        logger.debug("Added custom world " + pieces[0]);
-                        
-                        ArrayList<String> aL = new ArrayList<String>();
-                        aL.add(pieces[1]);
-                        customWorlds.put(pieces[0], aL);
+                        userWorldMap.remove(pieces[1]);
                     }
-                    userWorldMap.put(pieces[1],pieces[0]);
                     
-                    myWorld.addPlayerBody(pieces[1], this);
-                    
-                    updateList("ADD", pieces[1], pieces[0], CUSTOM_WORLD);
+                    sumTotalPlayer();
                 }
-                
-                sumTotalPlayer();
+            } else if (itemName.startsWith(CUSTOM_WORLD)) {
+                synchronized (myWorld) {
+                    String parser = itemName.substring(CUSTOM_WORLD.length());
+                    String pieces[] = parser.split("_");
+                    
+                    if (pieces.length > 2) {
+                        logger.debug("Unsubscribe request for " + itemName + ". Precision: " + pieces[2] + ", world name: " + pieces[1]);
+                        
+                        if (!worldsPrecisions.containsKey(pieces[1])) {
+                            logger.debug("worldPrecisions not found this: " + pieces[2]);
+                        } else {
+                            ArrayList<String> aW = worldsPrecisions.get(pieces[1]);
+                            if ( aW != null ) {
+                                aW.remove("_"+pieces[2]);
+                                logger.debug("worldPrecisions removed this: " + pieces[2]);
+                            }
+                        }
+                            
+                    } else {
+                        throw new SubscriptionException(CUSTOM_WORLD + " malformed.");
+                    }
+                }
+            } else if (itemName.startsWith(BAND_PREFIX)) {
+                if (metaAdapter != null) {
+                    metaAdapter.killBandChecker(itemName);
+                }
+            } else if (itemName.startsWith(STATISTICS)) {
+                goStats = false;
+            } else {
+                subscribed.remove(itemName);
+                logger.info(itemName + " unsubscribed!");
             }
-        } else if (itemName.startsWith(BAND_PREFIX)) {
-            // Nothing to do.
-        } else if (itemName.startsWith(STATISTICS)) {
-            goStats = true;
-            sumTotalPlayer();
-        } else {
-            subscribed.add(itemName);
-            logger.info(itemName + " subscribed!");
+            
+            itemListeners.remove(itemName);
+            return CompletableFuture.completedFuture(null);
         }
-
     }
     
     @Override
-    public void subscribe(String itemName, boolean needsIterator)
-            throws SubscriptionException, FailureException {
-        // Never Called.
-
+    public void shutdown() {
+        executor.shutdownNow();
     }
 
 }

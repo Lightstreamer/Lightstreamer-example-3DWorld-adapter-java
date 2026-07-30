@@ -30,13 +30,14 @@ public class PollsBandwidth implements Runnable {
 
     private boolean end = false;
     
-    private static String BAND_PREFIX = "My_Band_";
+    private static final String BAND_PREFIX = "My_Band_";
     
     //private MBeanServerConnection mbsc = null;
     private MBeanServer server;  
     private ObjectName sessionMBeanName = null;
     private String user = "";
     private ScheduledFuture<?> task = null;
+    private Move3dAdapter adapter;
 
     public ScheduledFuture<?> getTask() {
         return task;
@@ -46,7 +47,8 @@ public class PollsBandwidth implements Runnable {
         this.task = task;
     }
     
-    public PollsBandwidth(String sessionId, String user, int port) {
+    public PollsBandwidth(String sessionId, String user, int port, Move3dAdapter adapter) {
+        this.adapter = adapter;
         try {
             /*
             JMXServiceURL url = new JMXServiceURL("service:jmx:jmxmp://localhost:"+port);
@@ -106,7 +108,7 @@ public class PollsBandwidth implements Runnable {
     public void run () {
         try {
             Double d = (Double)server.getAttribute(sessionMBeanName, "CurrentBandwidthKbps");
-            Move3dAdapter.postBandwith(BAND_PREFIX+this.user, d);
+            adapter.postBandwith(BAND_PREFIX+this.user, d);
         } catch (Exception e) {
             // send update ERR.
             // this.listener.postBandwith(BAND_PREFIX+this.user, new Double(0));

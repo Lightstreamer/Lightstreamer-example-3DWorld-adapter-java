@@ -17,7 +17,7 @@ There are two ways the demo can work.
 
 ### Java Data Adapter and MetaData Adapter
 
-This project includes the implementation of both the [SmartDataProvider](https://lightstreamer.com/api/ls-adapter-inprocess/latest/com/lightstreamer/interfaces/data/SmartDataProvider.html) interface and the [MetadataProviderAdapter](https://lightstreamer.com/api/ls-adapter-inprocess/latest/com/lightstreamer/interfaces/metadata/MetadataProviderAdapter.html) interface to inject data into Lightstreamer server with real-time information about the movement of every object in the world.
+This project includes the implementation of both the [`DataAdapter`](https://lightstreamer.com/api/ls-adapter-inprocess/latest/com/lightstreamer/adapter/data/DataAdapter.html) interface and the [`MetadataAdapter`](https://lightstreamer.com/api/ls-adapter-inprocess/latest/com/lightstreamer/adapter/metadata/MetadataAdapter.html) interface to inject data into Lightstreamer server with real-time information about the movement of every object in the world.
 Both translations and rotations in 3D space are calculated by the adapter and transmitted to the clients in a 7-value array: position for axis X, position for axis Y, position for axis Z, and a quaternion object for rotation information: x, y, z, Quat(X, Y, Z, W).
 Precision and format of data in output are configurable by each user among these choices: 
 - binary Base64 encoded float numbers in single precision;
@@ -45,6 +45,9 @@ The `adapters.xml` file for this demo should look like:
 
     <metadata_provider>
         <adapter_class>com.lightstreamer.adapters.DemoQuat3d.Move3dMetaAdapter</adapter_class>
+
+        <!-- Ensure compatibility with old versions of the demo Clients. -->
+        <support_LiteralBased_subscriptions>Y</support_LiteralBased_subscriptions>
 
         <!--
           TCP port on which Sun/Oracle's JMXMP connector will be
@@ -142,11 +145,10 @@ Assuming Maven is installed and available in your path, you can build the demo b
 
 ### Related Projects
 
-* [LiteralBasedProvider Metadata Adapter](https://github.com/Lightstreamer/Lightstreamer-lib-adapter-java-inprocess#literalbasedprovider-metadata-adapter)
-
 ## Lightstreamer Compatibility Notes
 
-- Compatible with Lightstreamer SDK for Java In-Process Adapters since version 8.0.
+- Compatible with Lightstreamer SDK for Java In-Process Adapters since version 9.0.
+- For a version of this example compatible with Lightstreamer SDK for Java In-Process Adapters versions 8.x, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/XXXXXXXXXXXXXXXXXXXXX).
 - For a version of this example compatible with Lightstreamer SDK for Java Adapters versions 7.3 to 7.4 please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/last_for_interface_7.4.x).
 - For a version of this example compatible with Lightstreamer SDK for Java Adapters version 6.0, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/pre_mvn).
 - For a version of this example compatible with Lightstreamer SDK for Java Adapters version 5.1, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-3DWorld-adapter-java/tree/for_Lightstreamer_5.1).
